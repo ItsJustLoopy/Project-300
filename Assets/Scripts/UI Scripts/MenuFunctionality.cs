@@ -13,4 +13,9 @@ public class MenuFunctionality : MonoBehaviour
     {
         SceneManager.LoadSceneAsync(sceneBuildIndex);
     }
+
+    public void ExitApp()
+    {
+        Application.Quit();
+    }
 }
