@@ -13,9 +13,8 @@ MonoBehaviour:
   m_Name: Level1
   m_EditorClassIdentifier: Assembly-CSharp::LevelData
   levelNumber: 1
-  levelWidth: 11
+  levelWidth: 10
   levelHeight: 10
   playerSpawn: {x: 4, y: 1}
   holePosition: {x: 5, y: 5}
-  blocks:
-  - {fileID: 0}
+  blocks: []
