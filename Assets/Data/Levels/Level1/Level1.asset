@@ -15,5 +15,6 @@ MonoBehaviour:
   levelNumber: 1
   levelWidth: 10
   levelHeight: 10
-  holePosition: {x: 4, y: 4}
-  tiles: []
+  playerSpawn: {x: 4, y: 1}
+  holePosition: {x: 5, y: 5}
+  blocks: []

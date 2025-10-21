@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3015b869296401f4fb57223c75d64072, type: 3}
-  m_Name: TileLevel1
+  m_Name: Tile
   m_EditorClassIdentifier: Assembly-CSharp::TileData
   tileName: Tile
   isWalkable: 1
