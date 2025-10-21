@@ -49,6 +49,7 @@
     <Compile Include="Assets/Scripts/Scriptable Objects/TileData.cs" />
     <Compile Include="Assets/Scripts/Monobehaviour/LevelManager.cs" />
     <Compile Include="Assets/Scripts/Scriptable Objects/LevelData.cs" />
+    <Compile Include="Assets/Scripts/Scriptable Objects/BlockData.cs" />
     <Compile Include="Assets/Scripts/Monobehaviour/Block.cs" />
     <Compile Include="Assets/Scripts/Monobehaviour/Player.cs" />
     <Compile Include="Assets/Scripts/Monobehaviour/GroundTile.cs" />

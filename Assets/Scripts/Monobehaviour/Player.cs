@@ -7,25 +7,22 @@ public class Player : MonoBehaviour
     public Vector2Int gridPosition;
     public bool isMoving;
     
-    private PlayerInput playerInput;
-    private InputAction moveAction;
+    private PlayerInput _playerInput;
+    private InputAction _moveAction;
     
-    private void Awake()
+    private void Start()
     {
-        playerInput = GetComponent<PlayerInput>();
-        moveAction = playerInput.actions["Move"];
+        _playerInput = GetComponent<PlayerInput>();
+        _moveAction = _playerInput.actions["Move"];
+        gridPosition = LevelManager.Instance._currentLevelData.playerSpawn;
     }
-    
-    public void Initialize(Vector2Int gridPos)
-    {
-        gridPosition = gridPos;
-    }
+
 
     public void Update()
     {
-        if (!isMoving && moveAction.triggered)
+        if (!isMoving && _moveAction.triggered)
         {
-            Vector2 input = moveAction.ReadValue<Vector2>();
+            Vector2 input = _moveAction.ReadValue<Vector2>();
             
             // This converts the input vector to a direction vector and moves the player one square at a time
             Vector2Int direction = Vector2Int.zero;
@@ -90,7 +87,7 @@ public class Player : MonoBehaviour
         
         Vector3 startPosition = transform.position;
         Vector3 targetPosition = new Vector3(gridPos.x, 1, gridPos.y);
-        float duration = 0.2f;
+        float duration = 0.1f;
         float elapsed = 0f;
         
         while (elapsed < duration)

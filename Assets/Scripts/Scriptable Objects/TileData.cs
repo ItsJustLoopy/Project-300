@@ -6,5 +6,4 @@ public class TileData : ScriptableObject
     public string tileName = "Tile";
     public bool isWalkable = true;
     public bool isMovable = false;
-    public GameObject tilePrefab;
 }

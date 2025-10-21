@@ -6,19 +6,20 @@ public class Block : MonoBehaviour
 {
     public bool canBePlacedInHole = false;
     public Vector2Int gridPosition;
-    public Player player;
+    public BlockData data;
 
 
     public void Start()
     {
+        gridPosition = new Vector2Int((int)data.BlockPosition.x, (int)data.BlockPosition.z);
         var tile = LevelManager.Instance.GetTileAt(gridPosition);
         if (tile != null)
         {
-            tile.occupant = this;  
+            tile.occupant = this;
             tile.isOccupied = true;
         }
         
-        transform.position = new Vector3(gridPosition.x, 1, gridPosition.y);
+        transform.position = data.BlockPosition;
     }
 
     public void PushTo(Vector2Int targetPos)
@@ -30,7 +31,7 @@ public class Block : MonoBehaviour
     {
         Vector3 startPosition = transform.position;
         Vector3 targetPosition = new Vector3(targetPos.x, 1, targetPos.y);
-        float duration = 0.2f;
+        float duration = 0.1f;
         float elapsed = 0f;
         
         while (elapsed < duration)
@@ -44,6 +45,6 @@ public class Block : MonoBehaviour
         transform.position = targetPosition;
         gridPosition = targetPos;
     }
-    
+
     
 }
