@@ -10,11 +10,18 @@ public class MenuFunctionality : MonoBehaviour
     //last played level was. If this works correctly as is,
     //it should have the same function as a new game option when the player first starts.
     public void Start()
-
     {
         //SceneManager.LoadSceneAsync(sceneBuildIndex); This is the code that applies to the now redundant comments above
 
         SceneManager.LoadScene("Game"); //This code loads the scene called game
+    }
+
+    public void Update()
+    {
+        if(Input.GetButtonDown("Esc"))
+        {
+            EscapeButtonLogic();
+        }
     }
 
     //As all levels (scenes) are formatted as "Level [number]", we can call a method like this upon clicking a level button.
@@ -28,6 +35,39 @@ public class MenuFunctionality : MonoBehaviour
     {
         string LevelID = $"Level {LevelNumber}";
         SceneManager.LoadScene(LevelID);
+    }
+
+    public void EscapeButtonLogic()
+    {
+        /*if(GameObject.("Level Selection Screen").SetActive = true)
+        {
+            GameObject.SetActive("Level Selection Screen") = false;
+        }
+        */
+
+        GameObject LevelSelection = GameObject.Find("Level Selection Screen");
+
+        GameObject LevelLogic = GameObject.Find("Level Logic Screen");
+        GameObject LevelExplanation = GameObject.Find("LevelExplanations");
+
+        GameObject LevelSettings = GameObject.Find("Settings Screen");
+
+        if (LevelSelection.activeSelf)
+        {
+            LevelSelection.SetActive(false);
+        }
+        if (LevelLogic.activeSelf)
+        {
+            LevelLogic.SetActive(false);
+        }
+        if (LevelExplanation.activeSelf)
+        {
+            LevelExplanation.SetActive(false);
+        }
+        if (LevelSettings.activeSelf)
+        {
+            LevelSettings.SetActive(false);
+        }
     }
 
     public void ExitApp()
