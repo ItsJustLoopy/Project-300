@@ -18,7 +18,7 @@ public class MenuFunctionality : MonoBehaviour
 
     public void Update()
     {
-        if(Input.GetButtonDown("Esc"))
+        if(Input.GetKeyDown(KeyCode.Escape))
         {
             EscapeButtonLogic();
         }
