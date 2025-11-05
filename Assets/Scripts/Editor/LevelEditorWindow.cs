@@ -57,7 +57,6 @@ public class LevelEditorWindow : EditorWindow
         if (GUILayout.Button("Save", GUILayout.Height(30)))
         {
             AssetDatabase.SaveAssets();
-            
         }
     }
     

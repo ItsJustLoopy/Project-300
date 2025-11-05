@@ -9,67 +9,155 @@ public class Player : MonoBehaviour
     
     private PlayerInput _playerInput;
     private InputAction _moveAction;
+    private InputAction _elevatorAction;
     
     private void Start()
     {
         _playerInput = GetComponent<PlayerInput>();
         _moveAction = _playerInput.actions["Move"];
+        _elevatorAction = _playerInput.actions["Elevator"]; 
+        
         gridPosition = LevelManager.Instance._currentLevelData.playerSpawn;
     }
 
 
     public void Update()
     {
+        
+        if (!isMoving && _elevatorAction != null && _elevatorAction.triggered)
+        {
+            TryUseElevator();
+            return;
+        }
+
         if (!isMoving && _moveAction.triggered)
         {
             Vector2 input = _moveAction.ReadValue<Vector2>();
+            Vector2Int direction = ConvertInputToDirection(input);
             
-            // This converts the input vector to a direction vector and moves the player one square at a time
-            Vector2Int direction = Vector2Int.zero;
-            if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
+            if (direction != Vector2Int.zero)
             {
-                direction = new Vector2Int((int)Mathf.Sign(input.x), 0);
-            }
-            else if (input.y != 0)
-            {
-                direction = new Vector2Int(0, (int)Mathf.Sign(input.y));
-            }
-            
-            if (direction != Vector2Int.zero )
-            {
-                Vector2Int newPosition = gridPosition + direction;
-                
-                // Check if new position is out of bounds
-                if (LevelManager.Instance.CheckOutOfBounds(newPosition))
-                {
-                    return; 
-                }
-                
-                // Check if new position is occupied
-                if (LevelManager.Instance.GetTileAt(newPosition).isOccupied)
-                {
-                    
-                    Vector2Int blockTargetPosition = newPosition + direction;
-                    
-                    // Check if block can be pushed 
-                    if (!LevelManager.Instance.CheckOutOfBounds(blockTargetPosition)
-                        && !LevelManager.Instance.GetTileAt(blockTargetPosition).isOccupied)
-                    {
-                        var block = LevelManager.Instance.GetTileAt(newPosition).occupant;  
-                        PushBlock(block, blockTargetPosition, newPosition);
-                        Move(newPosition);
-                    }
-                    
-                }
-                else
-                {
-                    
-                    Move(newPosition);
-                }
+                TryMovePlayer(direction);
             }
         }
     }
 
+    private void TryUseElevator()
+    {
+        
+        if (LevelManager.Instance.IsElevatorAt(gridPosition))
+        {
+            Block elevator = LevelManager.Instance.GetElevatorAt(gridPosition);
+            int targetLevel = elevator.GetTargetLevel();
+        
+            if (elevator.isAtOriginLevel)
+            {
+                Debug.Log($"Taking elevator UP to level {targetLevel}");
+            }
+            else
+            {
+                Debug.Log($"Taking elevator DOWN to level {targetLevel}");
+            }
+        
+            StartCoroutine(LevelManager.Instance.UseElevator(gridPosition));
+        }
+        else
+        {
+            Debug.Log("Not standing on an elevator");
+        }
+    }
+
+    private Vector2Int ConvertInputToDirection(Vector2 input)
+    {
+        if (Mathf.Abs(input.x) > Mathf.Abs(input.y))
+        {
+            return new Vector2Int((int)Mathf.Sign(input.x), 0);
+        }
+        
+        if (input.y != 0)
+        {
+            return new Vector2Int(0, (int)Mathf.Sign(input.y));
+        }
+        
+        return Vector2Int.zero;
+    }
+
+    private void TryMovePlayer(Vector2Int direction)
+    {
+        Vector2Int newPosition = gridPosition + direction;
+        
+        bool isBlockInHole = IsBlockInHoleAtPosition(newPosition);
+        
+        if (!isBlockInHole && LevelManager.Instance.CheckOutOfBounds(newPosition))
+        {
+            return;
+        }
+        
+        if (isBlockInHole)
+        {
+            Move(newPosition);
+            return;
+        }
+        
+        GroundTile targetTile = LevelManager.Instance.GetTileAt(newPosition);
+        
+        if (targetTile != null && targetTile.isOccupied)
+        {
+            HandleBlockInteraction(targetTile.occupant, direction, newPosition);
+        }
+        else
+        {
+            Move(newPosition);
+        }
+    }
+
+    private bool IsBlockInHoleAtPosition(Vector2Int position)
+    {
+        
+        if (position != LevelManager.Instance.GetCurrentLevelData().holePosition)
+        {
+            return false;
+        }
+        
+        return LevelManager.Instance.IsElevatorAt(position);
+    }
+
+    private void HandleBlockInteraction(Block block, Vector2Int direction, Vector2Int newPosition)
+    {
+        if (block.IsInHole())
+        {
+            Move(newPosition);
+            return;
+        }
+        
+        Vector2Int blockTargetPosition = newPosition + direction;
+        
+        bool targetIsHole = blockTargetPosition == LevelManager.Instance.GetCurrentLevelData().holePosition;
+        bool targetOutOfBounds = LevelManager.Instance.CheckOutOfBounds(blockTargetPosition);
+        
+        if (targetIsHole && block.canBePlacedInHole)
+        {
+            Debug.Log("meow");
+            PushBlockIntoHole(block, blockTargetPosition, newPosition);
+            Move(newPosition);
+        }
+        else if (!targetOutOfBounds && !targetIsHole && CanPushBlockToTarget(blockTargetPosition))
+        {
+            Debug.Log("PUSHING BLOCK TO NORMAL TILE");
+            PushBlock(block, blockTargetPosition, newPosition);
+            Move(newPosition);
+        }
+        else
+        {
+            Debug.Log("Cannot push block, conditions not met");
+        }
+    }
+
+    private bool CanPushBlockToTarget(Vector2Int targetPosition)
+    {
+        GroundTile targetTile = LevelManager.Instance.GetTileAt(targetPosition);
+        return targetTile != null && !targetTile.isOccupied;
+    }
     
 
     public void Move(Vector2Int gridPos)
@@ -86,7 +174,8 @@ public class Player : MonoBehaviour
         isMoving = true;
         
         Vector3 startPosition = transform.position;
-        Vector3 targetPosition = new Vector3(gridPos.x, 1, gridPos.y);
+        float levelY = LevelManager.Instance.currentLevelIndex * LevelManager.Instance.verticalSpacing + 1f;
+        Vector3 targetPosition = new Vector3(gridPos.x, levelY, gridPos.y);
         float duration = 0.1f;
         float elapsed = 0f;
         
@@ -115,5 +204,20 @@ public class Player : MonoBehaviour
         
         block.PushTo(targetPos);
     }
-    
+
+    public void PushBlockIntoHole(Block block, Vector2Int holePos, Vector2Int currentPos)
+    {
+        // Update old tile
+        GroundTile oldTile = LevelManager.Instance.GetTileAt(currentPos);
+        if (oldTile != null)
+        {
+            oldTile.occupant = null;
+            oldTile.isOccupied = false;
+        }
+        
+        block.PushToThenPlaceInHole(holePos);
+        LevelManager.Instance.RegisterElevator(holePos, block);
+        
+        Debug.Log("Block placed in hole, it now acts as an elavator. Press Spacebar to use.");
+    }
 }

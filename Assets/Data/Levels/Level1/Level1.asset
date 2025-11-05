@@ -17,4 +17,5 @@ MonoBehaviour:
   levelHeight: 10
   playerSpawn: {x: 4, y: 1}
   holePosition: {x: 5, y: 5}
-  blocks: []
+  blocks:
+  - {fileID: 11400000, guid: c273eae8f001f1ce880e3a21e3f187bc, type: 2}
