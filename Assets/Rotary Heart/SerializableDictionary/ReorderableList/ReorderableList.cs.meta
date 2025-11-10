@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: a912a08eeace5594fa91c48e23c7b920
+timeCreated: 1434688391
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110992
+  packageName: Serialized Dictionary Lite
+  packageVersion: 2.6.10
+  assetPath: Assets/Rotary Heart/SerializableDictionary/ReorderableList/ReorderableList.cs
+  uploadId: 742865

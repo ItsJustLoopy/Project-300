@@ -1,0 +1,20 @@
+fileFormatVersion: 2
+guid: 553c4210c29c1884fbce9652dafeea9e
+timeCreated: 1517646601
+licenseType: Store
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110992
+  packageName: Serialized Dictionary Lite
+  packageVersion: 2.6.10
+  assetPath: Assets/Rotary Heart/SerializableDictionary/IDAttribute.cs
+  uploadId: 742865

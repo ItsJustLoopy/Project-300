@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: cbf98b49d6e815c4183c8b61dba47f69
+timeCreated: 1517921167
+licenseType: Store
+DefaultImporter:
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110992
+  packageName: Serialized Dictionary Lite
+  packageVersion: 2.6.10
+  assetPath: Assets/Rotary Heart/SerializableDictionary/Documentation.pdf
+  uploadId: 742865

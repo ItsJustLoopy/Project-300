@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 10ebc479cc081044d87faf0f7bd87988
+timeCreated: 1586353461
+licenseType: Store
+AssemblyDefinitionImporter:
+  externalObjects: {}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110992
+  packageName: Serialized Dictionary Lite
+  packageVersion: 2.6.10
+  assetPath: Assets/Rotary Heart/Shared/Editor/RotaryHeart.Editor.asmdef
+  uploadId: 742865
