@@ -1,23 +1,30 @@
 using System;
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Block : MonoBehaviour
 {
     public bool canBePlacedInHole = true;
-    public Vector2Int gridPosition;
     public BlockData data;
     public int levelIndex = 0; 
     public int originLevelIndex = 0; 
     public bool isAtOriginLevel = true; 
 
+    private GridMover _gridMover;
     private bool _isInHole = false;
+
+    public Vector2Int gridPosition => _gridMover.gridPosition;
+
+    private void Awake()
+    {
+        _gridMover = new GridMover(this, transform);
+    }
 
     public void Start()
     {
-        gridPosition = new Vector2Int((int)data.BlockPosition.x, (int)data.BlockPosition.z);
+        _gridMover.gridPosition = new Vector2Int((int)data.BlockPosition.x, (int)data.BlockPosition.z);
     
-        
         if (levelIndex == LevelManager.Instance.currentLevelIndex)
         {
             var tile = LevelManager.Instance.GetTileAt(gridPosition);
@@ -33,48 +40,29 @@ public class Block : MonoBehaviour
 
     public void PushTo(Vector2Int targetPos)
     {
-        StartCoroutine(Move(targetPos));
+        float levelY = levelIndex * LevelManager.Instance.verticalSpacing + 1f;
+        _gridMover.MoveToGrid(targetPos, levelY);
     }
 
-    private IEnumerator Move(Vector2Int targetPos)
+    public void PushToThenPlaceInHole(Vector2Int targetPos)
     {
-        Vector3 startPosition = transform.position;
-        float levelY = levelIndex * LevelManager.Instance.verticalSpacing + 1f;
-        Vector3 targetPosition = new Vector3(targetPos.x, levelY, targetPos.y);
-        float duration = 0.1f;
-        float elapsed = 0f;
-    
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            transform.position = Vector3.Lerp(startPosition, targetPosition, t);
-            yield return null;
-        }
-    
-        transform.position = targetPosition;
-        gridPosition = targetPos;
+        StartCoroutine(MoveToHole(targetPos));
     }
 
     private IEnumerator MoveToHole(Vector2Int targetPos)
     {
-        
         Vector3 startPosition = transform.position;
-        Vector3 holePosition = new Vector3(targetPos.x, 1, targetPos.y);
-        float duration = 0.1f;
-        float elapsed = 0f;
-    
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            transform.position = Vector3.Lerp(startPosition, holePosition, t);
-            yield return null;
-        }
-    
-        transform.position = holePosition;
-        gridPosition = targetPos;
-    
+        
+        
+        float myLevelY = levelIndex * LevelManager.Instance.verticalSpacing;
+        //Debug.Log($"my index : {levelIndex}, my level Y : {myLevelY}");
+        
+        Vector3 holePosition = new Vector3(targetPos.x, myLevelY + 1f, targetPos.y);
+        
+        yield return StartCoroutine(_gridMover.MoveWithCustomAnimation(startPosition, holePosition, 0.1f));
+        
+        _gridMover.gridPosition = targetPos;
+        
         yield return StartCoroutine(PlaceDownInHole());
     
         _isInHole = true;
@@ -89,32 +77,14 @@ public class Block : MonoBehaviour
     {
         Vector3 startPosition = transform.position;
         Vector3 targetPosition = new Vector3(startPosition.x, startPosition.y - 1, startPosition.z);
-    
-        float duration = 0.1f;
-        float elapsed = 0f;
-    
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            transform.position = Vector3.Lerp(startPosition, targetPosition, t);
-            yield return null;
-        }
-    
-        transform.position = targetPosition;
+        
+        yield return StartCoroutine(_gridMover.MoveWithCustomAnimation(startPosition, targetPosition, 0.1f));
     }
-    
-    public void PushToThenPlaceInHole(Vector2Int targetPos)
-    {
-        StartCoroutine(MoveToHole(targetPos));
-    }
-    
 
     public bool IsInHole()
     {
         return _isInHole;
     }
-    
     
     public int GetTargetLevel()
     {

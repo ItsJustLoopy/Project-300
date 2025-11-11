@@ -15,30 +15,29 @@ public class LevelManager : MonoBehaviour
     public int currentLevelIndex = 0;
     public float verticalSpacing = 5f;
     
-    [Header("Prefabs")]
+    [Header("Objects")]
     public GameObject groundTilePrefab;
     public GameObject playerPrefab;
     public GameObject blockPrefab;
+    public GameObject mainCamera;
     
-    [Header("Visibility Settings")]
+    [Header("Visuals")]
     public float inactiveLevelOpacity = 0.2f;
     public float fadeTransitionSpeed = 0.5f;
-    
     
     public LevelData _currentLevelData;
     private GroundTile[,] _groundTiles;
     private GameObject _playerInstance;
     private Player _playerScript;
     
-    
     private Dictionary<Vector2Int, Block> _elevatorBlocks = new Dictionary<Vector2Int, Block>();
-    
-    
     private Dictionary<int, LevelObjects> _loadedLevels = new Dictionary<int, LevelObjects>();
-    private class LevelObjects
+    
+    private class LevelObjects 
     {
         public List<GameObject> tiles = new List<GameObject>();
         public List<GameObject> blocks = new List<GameObject>();
+        public Dictionary<Vector2Int, GameObject> hiddenTiles = new Dictionary<Vector2Int, GameObject>();
         public float targetOpacity = 1f;
         public float currentOpacity = 1f;
     }
@@ -46,6 +45,8 @@ public class LevelManager : MonoBehaviour
     void Awake()  
     {
         Instance = this;
+        
+        BackgroundGenerator.CreateAnimatedBackground(mainCamera.GetComponent<Camera>());
         
         if (levelDatas == null || levelDatas.Length == 0 || groundTilePrefab == null)
         {
@@ -89,39 +90,46 @@ public class LevelManager : MonoBehaviour
 
         Debug.Log($"Generating level {levelIndex}");
         
-        LevelData levelData = levelDatas[levelIndex];
+        var levelData = levelDatas[levelIndex];
         float yOffset = levelIndex * verticalSpacing;
+        var levelObjects = new LevelObjects();
         
-        LevelObjects levelObjects = new LevelObjects();
-        
+        GameObject tilesParent = new GameObject($"Level_{levelIndex + 1}_Tiles");
+        tilesParent.transform.position = new Vector3(0, yOffset, 0);
         
         for (int x = 0; x < levelData.levelHeight; x++)
         {
             for (int y = 0; y < levelData.levelHeight; y++)
             {
-                if (x == levelData.holePosition.x && y == levelData.holePosition.y)
+                Vector2Int gridPos = new Vector2Int(x, y);
+                
+                if (gridPos == levelData.holePosition)
                 {
                     continue;
                 }
                 
                 Vector3 position = new Vector3(x, yOffset, y);
                 GameObject tileObj = Instantiate(groundTilePrefab, position, Quaternion.identity);
+                tileObj.transform.SetParent(tilesParent.transform);
                 GroundTile tile = tileObj.GetComponent<GroundTile>();
-                tile.Initialize(tile.data, new Vector2Int(x, y));
-                
-                levelObjects.tiles.Add(tileObj);
+                tile.Initialize(tile.data, gridPos);
+
+                levelObjects.tiles.Add(tileObj); 
                 
                 if (levelIndex == currentLevelIndex)
                 {
                     if (_groundTiles == null)
                     {
-                        _groundTiles = new GroundTile[levelData.levelHeight, levelData.levelHeight];
+                        _groundTiles = new GroundTile[levelData.levelWidth, levelData.levelHeight];
                     }
+                    
                     _groundTiles[x, y] = tile;
                 }
             }
         }
         
+        GameObject blocksParent = new GameObject($"Level_{levelIndex + 1}_Blocks");
+        blocksParent.transform.position = new Vector3(0, yOffset, 0);
         
         foreach (var blockData in levelData.blocks)
         {
@@ -132,6 +140,7 @@ public class LevelManager : MonoBehaviour
             );
             
             GameObject blockObj = Instantiate(blockPrefab, blockPosition, Quaternion.identity);
+            blockObj.transform.SetParent(blocksParent.transform);
             Block blockComponent = blockObj.GetComponent<Block>();
             if (blockComponent != null)
             {
@@ -155,8 +164,6 @@ public class LevelManager : MonoBehaviour
         Debug.Log($"Unloading level {levelIndex}");
         
         LevelObjects levelObjects = _loadedLevels[levelIndex];
-        
-        
         foreach (GameObject tile in levelObjects.tiles)
         {
             if (tile != null)
@@ -366,9 +373,8 @@ public class LevelManager : MonoBehaviour
             _elevatorBlocks[position] = block;
             block.originLevelIndex = currentLevelIndex;
             block.isAtOriginLevel = true;
-            Debug.Log($"Registered elevator at {position} on level {currentLevelIndex}");
+            //Debug.Log($"Registered elevator at {position} on level {currentLevelIndex}");
             
-            // Check if we need to load the next level
             int nextLevel = currentLevelIndex + 1;
             if (nextLevel < levelDatas.Length && !_loadedLevels.ContainsKey(nextLevel))
             {
@@ -411,21 +417,25 @@ public class LevelManager : MonoBehaviour
 
         bool goingUp = targetLevel > currentLevelIndex;
         
-        _playerScript.isMoving = true;
+        _playerScript._gridMover.isMoving = true;
 
         float targetLevelY = targetLevel * verticalSpacing;
+        float cameraY = targetLevelY + 19f;
         
+        
+        // y is treated as z here because we get elevator position from a top-down perspective
         Vector3 playerStart = _playerInstance.transform.position;
         Vector3 playerTarget = new Vector3(elevatorPosition.x, targetLevelY + 1f, elevatorPosition.y);
         
         Vector3 elevatorStart = elevator.transform.position;
         Vector3 elevatorTarget = new Vector3(elevatorPosition.x, targetLevelY, elevatorPosition.y);
+        
+        // the camera is an exception because it is from a side-view perspective
+        Vector3 cameraStart = mainCamera.transform.position;
+        Vector3 cameraTarget = new Vector3(cameraStart.x, cameraY, cameraStart.z);
 
         float duration = 1.5f;
         float elapsed = 0f;
-
-        Debug.Log($"Elevator traveling from level {currentLevelIndex} to level {targetLevel}");
-
         
         int fromLevel = currentLevelIndex;
         int toLevel = targetLevel;
@@ -438,6 +448,7 @@ public class LevelManager : MonoBehaviour
 
             _playerInstance.transform.position = Vector3.Lerp(playerStart, playerTarget, smoothT);
             elevator.transform.position = Vector3.Lerp(elevatorStart, elevatorTarget, smoothT);
+            mainCamera.transform.position = Vector3.Lerp(cameraStart, cameraTarget, smoothT);
             
             
             if (_loadedLevels.ContainsKey(fromLevel))
@@ -457,10 +468,12 @@ public class LevelManager : MonoBehaviour
 
         _playerInstance.transform.position = playerTarget;
         elevator.transform.position = elevatorTarget;
+        mainCamera.transform.position = cameraTarget;
 
+        elevator.levelIndex = targetLevel;
         
         currentLevelIndex = targetLevel;
-        _currentLevelData = ScriptableObject.Instantiate(levelDatas[currentLevelIndex]);
+        _currentLevelData = Instantiate(levelDatas[currentLevelIndex]);
         _playerScript.gridPosition = elevatorPosition;
         
         elevator.isAtOriginLevel = !elevator.isAtOriginLevel;
@@ -468,10 +481,10 @@ public class LevelManager : MonoBehaviour
         UpdateGroundTilesForCurrentLevel();
         ManageLoadedLevels(); 
         
-        _playerScript.isMoving = false;
+        _playerScript._gridMover.isMoving = false;
         
-        string direction = goingUp ? "up" : "down";
-        Debug.Log($"Arrived at level {currentLevelIndex} (went {direction})");
+        //string direction = goingUp ? "up" : "down";
+        //Debug.Log($"Arrived at level {currentLevelIndex} (went {direction})");
     }
 
     private void UpdateGroundTilesForCurrentLevel()
@@ -479,7 +492,7 @@ public class LevelManager : MonoBehaviour
         LevelData levelData = levelDatas[currentLevelIndex];
         _groundTiles = new GroundTile[levelData.levelHeight, levelData.levelHeight];
 
-        GroundTile[] allTiles = FindObjectsOfType<GroundTile>();
+        GroundTile[] allTiles = FindObjectsByType<GroundTile>(FindObjectsSortMode.None);
         float currentLevelY = currentLevelIndex * verticalSpacing;
 
         foreach (GroundTile tile in allTiles)
@@ -496,7 +509,7 @@ public class LevelManager : MonoBehaviour
         }
 
         
-        Block[] allBlocks = FindObjectsOfType<Block>();
+        Block[] allBlocks = FindObjectsByType<Block>(FindObjectsSortMode.None);
         foreach (Block block in allBlocks)
         {
             if (block.levelIndex == currentLevelIndex && !block.IsInHole())
