@@ -1,0 +1,73 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-2664601651024933695
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
+  m_Name: Block_8_5_Blue
+  m_EditorClassIdentifier: Assembly-CSharp::BlockData
+  blockName: Blue Block
+  blockPrefab: {fileID: 0}
+  BlockPosition: {x: 8, y: 1, z: 5}
+  blockColor: 2
+  containedColors: 02000000
+--- !u!114 &-2436112957909089523
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
+  m_Name: Block_4_6_Red
+  m_EditorClassIdentifier: Assembly-CSharp::BlockData
+  blockName: Red Block
+  blockPrefab: {fileID: 0}
+  BlockPosition: {x: 4, y: 1, z: 6}
+  blockColor: 0
+  containedColors: 00000000
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f5620f55823f9cfaa7a9ea023dd92e3, type: 3}
+  m_Name: Level2
+  m_EditorClassIdentifier: Assembly-CSharp::LevelData
+  levelWidth: 10
+  levelHeight: 10
+  playerSpawn: {x: 0, y: 0}
+  holePosition: {x: 6, y: 5}
+  blocks:
+  - {fileID: -2436112957909089523}
+  - {fileID: -2664601651024933695}
+  - {fileID: 2316583011377539100}
+--- !u!114 &2316583011377539100
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
+  m_Name: Block_7_7_Yellow
+  m_EditorClassIdentifier: Assembly-CSharp::BlockData
+  blockName: Yellow Block
+  blockPrefab: {fileID: 0}
+  BlockPosition: {x: 7, y: 1, z: 7}
+  blockColor: 1
+  containedColors: 01000000

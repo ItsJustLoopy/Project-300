@@ -139,20 +139,40 @@ public class Player : MonoBehaviour
         }
 
         Vector2Int blockTargetPosition = newPosition + direction;
-
         bool targetIsHole = blockTargetPosition == LevelManager.Instance.GetCurrentLevelData().holePosition;
         bool targetOutOfBounds = LevelManager.Instance.CheckOutOfBounds(blockTargetPosition);
 
         if (targetIsHole && block.canBePlacedInHole)
         {
-            Debug.Log("Elevator placed in hole!");
+            Debug.Log("Black block placed in hole - Elevator created!");
             PushBlockIntoHole(block, blockTargetPosition, newPosition);
             Move(newPosition);
         }
-        else if (!targetOutOfBounds && !targetIsHole && CanPushBlockToTarget(blockTargetPosition))
+        else if (!targetOutOfBounds && !targetIsHole)
         {
-            PushBlock(block, blockTargetPosition, newPosition);
-            Move(newPosition);
+            GroundTile targetTile = LevelManager.Instance.GetTileAt(blockTargetPosition);
+            
+            if (targetTile != null && targetTile.isOccupied && targetTile.occupant != null)
+            {
+                Block targetBlock = targetTile.occupant;
+                
+                if (block.CanCombineWith(targetBlock))
+                {
+                    LevelManager.Instance.GetTileAt(newPosition).occupant = null;
+                    LevelManager.Instance.GetTileAt(newPosition).isOccupied = false;
+                    
+                    block.levelIndex = LevelManager.Instance.currentLevelIndex;
+                    block.PushTo(blockTargetPosition);
+                    
+                    StartCoroutine(CombineBlocksAfterMove(block, targetBlock, blockTargetPosition));
+                    Move(newPosition);
+                }
+            }
+            else if (targetTile != null && !targetTile.isOccupied)
+            {
+                PushBlock(block, blockTargetPosition, newPosition);
+                Move(newPosition);
+            }
         }
     }
 
@@ -197,5 +217,26 @@ public class Player : MonoBehaviour
         LevelManager.Instance.RegisterElevator(holePos, block);
 
         Debug.Log("Block placed in hole, it now acts as an elavator. Press Spacebar to use.");
+    }
+    
+    private IEnumerator CombineBlocksAfterMove(Block movingBlock, Block targetBlock, Vector2Int position)
+    {
+        while (movingBlock.isMoving)
+        {
+            yield return null;
+        }
+        
+        yield return new WaitForSeconds(0.1f);
+        
+        movingBlock.CombineWith(targetBlock);
+        
+        GroundTile tile = LevelManager.Instance.GetTileAt(position);
+        if (tile != null)
+        {
+            tile.occupant = movingBlock;
+            tile.isOccupied = true;
+        }
+        
+        Debug.Log($"Combined into: {movingBlock.data.blockColor}");
     }
 }
