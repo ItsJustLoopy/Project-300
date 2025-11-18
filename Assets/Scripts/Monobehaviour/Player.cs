@@ -8,12 +8,13 @@ public class Player : MonoBehaviour
     public bool isMoving;
     
     private PlayerInput _playerInput;
-    private InputAction _moveAction;
+    private InputAction _moveAction, _undoAction;
     
     private void Start()
     {
         _playerInput = GetComponent<PlayerInput>();
         _moveAction = _playerInput.actions["Move"];
+        _undoAction = _playerInput.actions["Undo"];
         gridPosition = LevelManager.Instance._currentLevelData.playerSpawn;
     }
 
@@ -55,7 +56,18 @@ public class Player : MonoBehaviour
                     if (!LevelManager.Instance.CheckOutOfBounds(blockTargetPosition)
                         && !LevelManager.Instance.GetTileAt(blockTargetPosition).isOccupied)
                     {
-                        var block = LevelManager.Instance.GetTileAt(newPosition).occupant;  
+                        var block = LevelManager.Instance.GetTileAt(newPosition).occupant;
+                        LevelManager.Instance.undoStack.Push(
+                            new MoveRecord(
+                                gridPosition,               // playerFrom
+                                newPosition,                // playerTo
+                                block,                      // the block being pushed
+                                block.gridPosition,         // blockFrom 
+                                blockTargetPosition         // blockTo
+                                   )
+                            );
+
+                        // Apply movement
                         PushBlock(block, blockTargetPosition, newPosition);
                         Move(newPosition);
                     }
@@ -65,6 +77,10 @@ public class Player : MonoBehaviour
                 {
                     
                     Move(newPosition);
+                }
+                if (_undoAction.triggered)
+                {
+                    LevelManager.Instance.UndoMove();
                 }
             }
         }
@@ -77,6 +93,8 @@ public class Player : MonoBehaviour
         
         if (!isMoving)
         {
+            LevelManager.Instance.undoStack.Push(
+                new MoveRecord(gridPosition, gridPos));
             StartCoroutine(MoveTo(gridPos));
         }
     }
@@ -115,5 +133,11 @@ public class Player : MonoBehaviour
         
         block.PushTo(targetPos);
     }
-    
+    public void ForceSetPosition(Vector2Int pos)
+    {
+        StopAllCoroutines();
+        gridPosition = pos;
+        transform.position = new Vector3(pos.x, 1, pos.y);
+        isMoving = false;
+    }
 }

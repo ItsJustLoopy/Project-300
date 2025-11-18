@@ -1,8 +1,11 @@
+using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
+    //move recording
+    public Stack<MoveRecord> undoStack = new Stack<MoveRecord>();
 
     public static LevelManager Instance;
     
@@ -142,5 +145,41 @@ public class LevelManager : MonoBehaviour
     public LevelData GetCurrentLevelData()
     {
         return _currentLevelData;
+    }
+
+    public void UndoMove()
+    {
+        if (undoStack.Count == 0) return;
+
+        MoveRecord record = undoStack.Pop();
+
+        Player player = _playerInstance.GetComponent<Player>();
+        player.StopAllCoroutines();
+
+        // Undo block push if needed
+        if (record.pushedBlock)
+        {
+            Block block = record.block;
+
+            // Fix tile occupancy (block)
+            GroundTile fromTile = GetTileAt(record.blockFrom);
+            GroundTile toTile = GetTileAt(record.blockTo);
+
+            // Clear destination tile
+            toTile.occupant = null;
+            toTile.isOccupied = false;
+
+            // Restore original tile
+            fromTile.occupant = block;
+            fromTile.isOccupied = true;
+
+            // Reset block physically
+            block.StopAllCoroutines();
+            block.gridPosition = record.blockFrom;
+            block.transform.position = new Vector3(record.blockFrom.x, 1, record.blockFrom.y);
+        }
+
+        // Undo player movement
+        player.ForceSetPosition(record.playerFrom);
     }
 }
