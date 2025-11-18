@@ -81,6 +81,7 @@ public class Player : MonoBehaviour
                 if (_undoAction.triggered)
                 {
                     LevelManager.Instance.UndoMove();
+                    Debug.Log("Undone move");
                 }
             }
         }
@@ -119,6 +120,7 @@ public class Player : MonoBehaviour
         transform.position = targetPosition;
         gridPosition = gridPos;
         isMoving = false;
+
     }
 
     public void PushBlock(Block block, Vector2Int targetPos, Vector2Int currentPos)
