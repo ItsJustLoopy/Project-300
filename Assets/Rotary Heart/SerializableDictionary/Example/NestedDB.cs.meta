@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: 86c2746ac6d3d924bb04108285ea0aff
+timeCreated: 1524685484
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110992
+  packageName: Serialized Dictionary Lite
+  packageVersion: 2.6.10
+  assetPath: Assets/Rotary Heart/SerializableDictionary/Example/NestedDB.cs
+  uploadId: 742865
