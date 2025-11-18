@@ -5,10 +5,10 @@ using UnityEngine;
 public class LevelData : ScriptableObject
 {
     [Header("Level Settings")]
-    public int levelNumber;
     public int levelWidth;
     public int levelHeight;
     public Vector2Int playerSpawn;
     public Vector2Int holePosition = new Vector2Int(4, 4);
     public List<BlockData> blocks;
+    
 }

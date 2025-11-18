@@ -361,10 +361,6 @@ PrefabInstance:
       value: LevelManager
       objectReference: {fileID: 0}
     - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
-      propertyPath: mainCamera
-      value: 
-      objectReference: {fileID: 1586556189}
-    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
       propertyPath: blockPrefab
       value: 
       objectReference: {fileID: 6032227448271808410, guid: 7becbc391eb556a80b5b8e7aafa69cf1, type: 3}
@@ -373,16 +369,12 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 245656063605951332, guid: 9a0b9a86204501324b6adc99d2f3468a, type: 3}
     - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
-      propertyPath: verticalSpacing
-      value: 10
-      objectReference: {fileID: 0}
-    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
       propertyPath: _currentLevelData
       value: 
       objectReference: {fileID: 11400000, guid: d79830a4ab8d1d976b32eb61eb1dad24, type: 2}
     - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
       propertyPath: levelDatas.Array.size
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
       propertyPath: 'levelDatas.Array.data[0]'
@@ -390,10 +382,6 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: d79830a4ab8d1d976b32eb61eb1dad24, type: 2}
     - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
       propertyPath: 'levelDatas.Array.data[1]'
-      value: 
-      objectReference: {fileID: 11400000, guid: 070f33ba006ab7b18891e7829b64ceb4, type: 2}
-    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
-      propertyPath: 'levelDatas.Array.data[2]'
       value: 
       objectReference: {fileID: 11400000, guid: d79830a4ab8d1d976b32eb61eb1dad24, type: 2}
     m_RemovedComponents: []

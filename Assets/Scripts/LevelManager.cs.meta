@@ -1,0 +1,14 @@
+fileFormatVersion: 2
+guid: 20a44814f9e8f0136acab9b95f4709ff
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - groundTilePrefab: {fileID: 7115872545642036871, guid: 16fdee695f9438254a426f77128bb41b, type: 3}
+  - playerPrefab: {fileID: 245656063605951332, guid: 9a0b9a86204501324b6adc99d2f3468a, type: 3}
+  - blockPrefab: {fileID: 6032227448271808410, guid: 7becbc391eb556a80b5b8e7aafa69cf1, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

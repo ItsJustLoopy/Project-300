@@ -124,6 +124,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89dec6c61e9022d13a9a16ed5dd0e303, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  canBePlacedInHole: 0
+  canBePlacedInHole: 1
   gridPosition: {x: 0, y: 0}
   data: {fileID: 0}

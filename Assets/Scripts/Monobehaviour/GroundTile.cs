@@ -13,9 +13,8 @@ public class GroundTile : MonoBehaviour
         data = tileData;
         gridPosition = gridPos;
         isOccupied = false;
-        
-
         name = $"Tile_({gridPosition.x},{gridPosition.y})";
+        
     }
     
     
