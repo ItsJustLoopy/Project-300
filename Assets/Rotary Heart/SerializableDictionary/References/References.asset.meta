@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: 3d6785e46e940b843aa5fbe4ca729d60
+timeCreated: 1517844080
+licenseType: Store
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110992
+  packageName: Serialized Dictionary Lite
+  packageVersion: 2.6.10
+  assetPath: Assets/Rotary Heart/SerializableDictionary/References/References.asset
+  uploadId: 742865

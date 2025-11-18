@@ -1,0 +1,19 @@
+fileFormatVersion: 2
+guid: db381ff7b4ec4384d8ec4f8cf79d7398
+timeCreated: 1539019300
+licenseType: Store
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 110992
+  packageName: Serialized Dictionary Lite
+  packageVersion: 2.6.10
+  assetPath: Assets/Rotary Heart/SerializableDictionary/Editor/Definer.cs
+  uploadId: 742865

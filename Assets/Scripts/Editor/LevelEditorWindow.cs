@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEditor;
 using System.Collections.Generic;
+using System.IO;
 
 public class LevelEditorWindow : EditorWindow
 {
@@ -9,7 +10,7 @@ public class LevelEditorWindow : EditorWindow
 
     private int _selectedTool; 
     // 0 = Block, 1 = Hole  2 = Player 3 = Remove Block
-    
+    private BlockData.BlockColor _selectedBlockColor = BlockData.BlockColor.Red;
     private const float CellSize = 50f;
     
     public static void OpenWindow(LevelData data)
@@ -50,14 +51,31 @@ public class LevelEditorWindow : EditorWindow
             _selectedTool = 3;
         
         EditorGUILayout.EndHorizontal();
-        EditorGUILayout.Space();
         
+        if (_selectedTool == 0)
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Block Color:", EditorStyles.boldLabel);
+            EditorGUILayout.BeginHorizontal();
+            
+            if (GUILayout.Button("Red", _selectedBlockColor == BlockData.BlockColor.Red ? GUI.skin.box : GUI.skin.button))
+                _selectedBlockColor = BlockData.BlockColor.Red;
+            if (GUILayout.Button("Yellow", _selectedBlockColor == BlockData.BlockColor.Yellow ? GUI.skin.box : GUI.skin.button))
+                _selectedBlockColor = BlockData.BlockColor.Yellow;
+            if (GUILayout.Button("Blue", _selectedBlockColor == BlockData.BlockColor.Blue ? GUI.skin.box : GUI.skin.button))
+                _selectedBlockColor = BlockData.BlockColor.Blue;
+            
+            EditorGUILayout.EndHorizontal();
+        }
+        
+        EditorGUILayout.Space();
         DrawGrid();
         
         if (GUILayout.Button("Save", GUILayout.Height(30)))
         {
+            EditorUtility.SetDirty(_levelData);
             AssetDatabase.SaveAssets();
-            
+            AssetDatabase.Refresh();
         }
     }
     
@@ -83,7 +101,6 @@ public class LevelEditorWindow : EditorWindow
     {
         Rect rect = GUILayoutUtility.GetRect(CellSize, CellSize);
         
-        
         Color color = Color.white;
         string label = "Ground";
         
@@ -97,16 +114,14 @@ public class LevelEditorWindow : EditorWindow
             color = Color.blue;
             label = "Player";
         }
-        else if (HasBlockAt(pos))
+        else if (HasBlockAt(pos, out BlockData blockData))
         {
-            color = Color.red;
-            label = "Block";
+            color = GetBlockDisplayColor(blockData.blockColor);
+            label = blockData.blockColor.ToString();
         }
-        
         
         EditorGUI.DrawRect(rect, color);
         GUI.Box(rect, label);
-        
         
         if (rect.Contains(e.mousePosition) && e.type == EventType.MouseDown)
         {
@@ -116,22 +131,45 @@ public class LevelEditorWindow : EditorWindow
         }
     }
     
-    private bool HasBlockAt(Vector2Int pos)
+    private bool HasBlockAt(Vector2Int pos, out BlockData foundBlock)
     {
+        foundBlock = null;
         if (_levelData.blocks == null) return false;
         
         foreach (var block in _levelData.blocks)
         {
             if ((int)block.BlockPosition.x == pos.x && (int)block.BlockPosition.z == pos.y)
+            {
+                foundBlock = block;
                 return true;
+            }
         }
         return false;
+    }
+    
+    private bool HasBlockAt(Vector2Int pos)
+    {
+        return HasBlockAt(pos, out _);
+    }
+    
+    private Color GetBlockDisplayColor(BlockData.BlockColor blockColor)
+    {
+        switch (blockColor)
+        {
+            case BlockData.BlockColor.Red: return Color.red;
+            case BlockData.BlockColor.Yellow: return Color.yellow;
+            case BlockData.BlockColor.Blue: return new Color(0.3f, 0.3f, 1f);
+            case BlockData.BlockColor.Purple: return new Color(0.5f, 0f, 0.5f);
+            case BlockData.BlockColor.Orange: return new Color(1f, 0.5f, 0f);
+            case BlockData.BlockColor.Green: return Color.green;
+            case BlockData.BlockColor.Black: return new Color(0.2f, 0.2f, 0.2f);
+            default: return Color.red;
+        }
     }
     
     private void HandleCellClick(Vector2Int pos)
     {
         Undo.RecordObject(_levelData, "Edit Level");
-
 
         switch (_selectedTool)
         {
@@ -149,18 +187,29 @@ public class LevelEditorWindow : EditorWindow
                 RemoveBlockAt(pos);
                 break;
         }
-
     }
     
     private void AddBlock(Vector2Int pos)
     {
+        string levelPath = AssetDatabase.GetAssetPath(_levelData);
+        string levelDir = Path.GetDirectoryName(levelPath);
+        
         BlockData newBlock = CreateInstance<BlockData>();
         newBlock.BlockPosition = new Vector3(pos.x, 1, pos.y);
-        newBlock.blockName = "Block";
+        newBlock.blockName = _selectedBlockColor.ToString() + " Block";
+        newBlock.blockColor = _selectedBlockColor;
+        newBlock.containedColors = new List<BlockData.BlockColor> { _selectedBlockColor };
+        
+        
+        newBlock.name = $"Block_{pos.x}_{pos.y}_{_selectedBlockColor}";
+        AssetDatabase.AddObjectToAsset(newBlock, _levelData);
         
         List<BlockData> blocks = new List<BlockData>(_levelData.blocks ?? new List<BlockData>());
         blocks.Add(newBlock);
         _levelData.blocks = blocks;
+        
+        EditorUtility.SetDirty(_levelData);
+        EditorUtility.SetDirty(newBlock);
     }
     
     private void RemoveBlockAt(Vector2Int pos)
@@ -170,10 +219,18 @@ public class LevelEditorWindow : EditorWindow
         List<BlockData> blocks = new List<BlockData>();
         foreach (var block in _levelData.blocks)
         {
-            if (!((int)block.BlockPosition.x == pos.x && (int)block.BlockPosition.z == pos.y))
+            if ((int)block.BlockPosition.x == pos.x && (int)block.BlockPosition.z == pos.y)
+            {
+                
+                AssetDatabase.RemoveObjectFromAsset(block);
+            }
+            else
+            {
                 blocks.Add(block);
+            }
         }
 
         _levelData.blocks = blocks;
+        EditorUtility.SetDirty(_levelData);
     }
 }
