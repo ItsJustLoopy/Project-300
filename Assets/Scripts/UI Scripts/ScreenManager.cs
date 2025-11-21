@@ -2,6 +2,7 @@ using RotaryHeart.Lib.SerializableDictionary;
 using System;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 //SerializableDictionaryBase requires the Serialized Dictionary Lite package to be installed.
 [Serializable]
@@ -21,8 +22,14 @@ public class ScreenManager : Singleton<ScreenManager>
 
     private void Start()
     {
-        DiableAllScreens();
+        DisableAllScreens();
         ShowScreen(StartingScreen);
+    }
+
+    public void Play()
+    {
+        DisableAllScreens();
+        SceneManager.LoadScene("Game");
     }
 
     public void ShowScreen(string screenName)
@@ -42,7 +49,7 @@ public class ScreenManager : Singleton<ScreenManager>
         Screens[ActiveScreen].SetActive(true);
     }
 
-    private void DiableAllScreens()
+    private void DisableAllScreens()
     {
         foreach (var screen in Screens.Values)
         {
