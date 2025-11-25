@@ -27,13 +27,13 @@ public class LevelManager : MonoBehaviour
     
     public LevelData _currentLevelData;
     private GroundTile[,] _groundTiles;
-    private GameObject _playerInstance;
+    public GameObject _playerInstance; 
     private Player _playerScript;
     
-    private Dictionary<Vector2Int, Block> _elevatorBlocks = new Dictionary<Vector2Int, Block>();
-    private Dictionary<int, LevelObjects> _loadedLevels = new Dictionary<int, LevelObjects>();
+    public Dictionary<Vector2Int, Block> _elevatorBlocks = new Dictionary<Vector2Int, Block>(); 
+    public Dictionary<int, LevelObjects> _loadedLevels = new Dictionary<int, LevelObjects>(); 
     
-    private class LevelObjects 
+    public class LevelObjects
     {
         public List<GameObject> tiles = new List<GameObject>();
         public List<GameObject> blocks = new List<GameObject>();
@@ -53,8 +53,18 @@ public class LevelManager : MonoBehaviour
             Debug.LogError("Missing LevelData or GroundTile prefab and cannot generate level");
             return;
         }
-        
-        
+
+        // Check if save file exists and load it
+        if (SaveManager.Instance != null && SaveManager.Instance.SaveFileExists())
+        {
+            bool loadSuccess = SaveManager.Instance.LoadGame();
+            if (loadSuccess)
+            {
+                Debug.Log("Game loaded from save file");
+                return;
+            }
+        }
+
         GenerateLevel(currentLevelIndex);
         _currentLevelData = levelDatas[currentLevelIndex];
         
@@ -80,7 +90,7 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void GenerateLevel(int levelIndex)
+        public void GenerateLevel(int levelIndex, bool skipBlocks = false)
     {
         if (_loadedLevels.ContainsKey(levelIndex))
         {
@@ -128,27 +138,31 @@ public class LevelManager : MonoBehaviour
             }
         }
         
-        GameObject blocksParent = new GameObject($"Level_{levelIndex + 1}_Blocks");
-        blocksParent.transform.position = new Vector3(0, yOffset, 0);
-        
-        foreach (var blockData in levelData.blocks)
+        // Only spawn blocks if not loading from save
+        if (!skipBlocks)
         {
-            Vector3 blockPosition = new Vector3(
-                blockData.BlockPosition.x,
-                yOffset + 1f,
-                blockData.BlockPosition.z
-            );
+            GameObject blocksParent = new GameObject($"Level_{levelIndex + 1}_Blocks");
+            blocksParent.transform.position = new Vector3(0, yOffset, 0);
             
-            GameObject blockObj = Instantiate(blockPrefab, blockPosition, Quaternion.identity);
-            blockObj.transform.SetParent(blocksParent.transform);
-            Block blockComponent = blockObj.GetComponent<Block>();
-            if (blockComponent != null)
+            foreach (var blockData in levelData.blocks)
             {
-                blockComponent.data = blockData;
-                blockComponent.levelIndex = levelIndex;
+                Vector3 blockPosition = new Vector3(
+                    blockData.BlockPosition.x,
+                    yOffset + 1f,
+                    blockData.BlockPosition.z
+                );
+                
+                GameObject blockObj = Instantiate(blockPrefab, blockPosition, Quaternion.identity);
+                blockObj.transform.SetParent(blocksParent.transform);
+                Block blockComponent = blockObj.GetComponent<Block>();
+                if (blockComponent != null)
+                {
+                    blockComponent.data = blockData;
+                    blockComponent.levelIndex = levelIndex;
+                }
+                
+                levelObjects.blocks.Add(blockObj);
             }
-            
-            levelObjects.blocks.Add(blockObj);
         }
         
         _loadedLevels[levelIndex] = levelObjects;
@@ -232,7 +246,7 @@ public class LevelManager : MonoBehaviour
         UpdateLevelOpacities();
     }
 
-    private void UpdateLevelOpacities()
+    public void UpdateLevelOpacities()
     {
         foreach (var kvp in _loadedLevels)
         {
@@ -483,11 +497,16 @@ public class LevelManager : MonoBehaviour
         
         _playerScript._gridMover.isMoving = false;
         
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.SaveGame();
+        }
+        
         //string direction = goingUp ? "up" : "down";
         //Debug.Log($"Arrived at level {currentLevelIndex} (went {direction})");
     }
 
-    private void UpdateGroundTilesForCurrentLevel()
+    public void UpdateGroundTilesForCurrentLevel()
     {
         LevelData levelData = levelDatas[currentLevelIndex];
         _groundTiles = new GroundTile[levelData.levelHeight, levelData.levelHeight];

@@ -18,6 +18,7 @@ public class Block : MonoBehaviour
 
     public Vector2Int gridPosition => _gridMover.gridPosition;
     public bool isMoving => _gridMover.isMoving;
+    public List<BlockData.BlockColor> containedPrimaryColors => _containedPrimaryColors; 
 
     private void Awake()
     {
