@@ -15,8 +15,8 @@ MonoBehaviour:
   blockName: Blue Block
   blockPrefab: {fileID: 0}
   BlockPosition: {x: 8, y: 1, z: 5}
-  blockColor: 2
-  containedColors: 02000000
+  blockColor: 3
+  containedColors: 0200000000000000
 --- !u!114 &-2436112957909089523
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,5 +69,5 @@ MonoBehaviour:
   blockName: Yellow Block
   blockPrefab: {fileID: 0}
   BlockPosition: {x: 7, y: 1, z: 7}
-  blockColor: 1
-  containedColors: 01000000
+  blockColor: 6
+  containedColors: 010000000200000000000000

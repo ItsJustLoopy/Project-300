@@ -29,7 +29,10 @@ public class Player : MonoBehaviour
         _moveAction = _playerInput.actions["Move"];
         _elevatorAction = _playerInput.actions["Elevator"];
 
-        _gridMover.gridPosition = LevelManager.Instance._currentLevelData.playerSpawn;
+        if (_gridMover.gridPosition == Vector2Int.zero)
+        {
+            _gridMover.gridPosition = LevelManager.Instance._currentLevelData.playerSpawn;
+        }
     }
 
     public void Update()
