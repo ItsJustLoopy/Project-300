@@ -3,34 +3,19 @@ using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
-    public static bool GameIsPaused = false;
-    public GameObject PauseMenuUI;
+    private void OnEnable()
+    {
+        GameManager.Instance.Pause();  
+    }
 
-    void Update()
+    public void OnPause()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (GameIsPaused)
-            {
-                UnPause();
-            }
-            else
-            {
-                Pause();
-            }
-        }
+        ScreenManager.Instance.ShowScreen("HUD");    
     }
-   public void UnPause()
+
+    private void OnDisable()
     {
-        PauseMenuUI.SetActive(false);
-        Time.timeScale = 1f;
-        GameIsPaused = false;
-    }
-    void Pause()
-    {
-        PauseMenuUI.SetActive(true);
-        Time.timeScale = 0f;
-        GameIsPaused = true;
+        GameManager.Instance.UnPause();
     }
 
     public void LoadMenu()
