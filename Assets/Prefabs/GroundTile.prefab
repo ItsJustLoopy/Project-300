@@ -127,3 +127,5 @@ MonoBehaviour:
   data: {fileID: 11400000, guid: a6d9c8154a357dd06a4750d7a5f97df8, type: 2}
   isWalkable: 1
   gridPosition: {x: 0, y: 0}
+  occupant: {fileID: 0}
+  isOccupied: 0
