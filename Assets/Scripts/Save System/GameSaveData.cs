@@ -43,7 +43,7 @@ public class ElevatorSaveData
     public bool isAtOriginLevel;
 }
 
-// fuck you unity
+
 [System.Serializable]
 public struct Vector2IntSerializable
 {

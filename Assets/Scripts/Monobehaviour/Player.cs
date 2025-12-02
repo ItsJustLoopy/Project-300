@@ -70,6 +70,11 @@ public class Player : MonoBehaviour
             {
                 Debug.Log($"Taking elevator DOWN to level {targetLevel}");
             }
+            
+            if (AudioManager.Instance != null)
+            {
+                AudioManager.Instance.PlayElevatorSound();
+            }
 
             StartCoroutine(LevelManager.Instance.UseElevator(gridPosition));
         }
@@ -189,6 +194,11 @@ public class Player : MonoBehaviour
     {
         float levelY = LevelManager.Instance.currentLevelIndex * LevelManager.Instance.verticalSpacing + 1f;
         _gridMover.MoveToGrid(gridPos, levelY);
+        
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayPlayerMoveSound();
+        }
     }
 
     public void PushBlock(Block block, Vector2Int targetPos, Vector2Int currentPos)
@@ -201,6 +211,11 @@ public class Player : MonoBehaviour
     
         block.levelIndex = LevelManager.Instance.currentLevelIndex;
     
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBlockPushSound();
+            
+        }
         block.PushTo(targetPos);
     }
 

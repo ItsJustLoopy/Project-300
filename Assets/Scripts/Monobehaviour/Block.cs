@@ -133,6 +133,11 @@ public class Block : MonoBehaviour
         UpdateBlockAppearance();
         UpdateElevatorStatus();
         
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBlockCombineSound();
+        }
+        
         var tile = LevelManager.Instance.GetTileAt(otherBlock.gridPosition);
         if (tile != null)
         {
