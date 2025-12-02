@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-4644418192934198458
+--- !u!114 &-8229968802307139793
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,13 +10,30 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
-  m_Name: Block_7_5_Yellow
+  m_Name: Block_5_5_Yellow
   m_EditorClassIdentifier: Assembly-CSharp::BlockData
   blockName: Yellow Block
   blockPrefab: {fileID: 0}
-  BlockPosition: {x: 7, y: 1, z: 5}
+  BlockPosition: {x: 5, y: 1, z: 5}
   blockColor: 1
   containedColors: 01000000
+--- !u!114 &-3834395543396300131
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
+  m_Name: Block_3_5_Red
+  m_EditorClassIdentifier: Assembly-CSharp::BlockData
+  blockName: Red Block
+  blockPrefab: {fileID: 0}
+  BlockPosition: {x: 3, y: 1, z: 5}
+  blockColor: 0
+  containedColors: 00000000
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34,10 +51,10 @@ MonoBehaviour:
   playerSpawn: {x: 4, y: 1}
   holePosition: {x: 1, y: 5}
   blocks:
-  - {fileID: 4792059066053667021}
-  - {fileID: 8314799618161104949}
-  - {fileID: -4644418192934198458}
---- !u!114 &4792059066053667021
+  - {fileID: -3834395543396300131}
+  - {fileID: 9113920037307614401}
+  - {fileID: -8229968802307139793}
+--- !u!114 &9113920037307614401
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -47,27 +64,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
-  m_Name: Block_3_5_Red
-  m_EditorClassIdentifier: Assembly-CSharp::BlockData
-  blockName: Red Block
-  blockPrefab: {fileID: 0}
-  BlockPosition: {x: 3, y: 1, z: 5}
-  blockColor: 0
-  containedColors: 00000000
---- !u!114 &8314799618161104949
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
-  m_Name: Block_5_5_Blue
+  m_Name: Block_3_3_Blue
   m_EditorClassIdentifier: Assembly-CSharp::BlockData
   blockName: Blue Block
   blockPrefab: {fileID: 0}
-  BlockPosition: {x: 5, y: 1, z: 5}
+  BlockPosition: {x: 3, y: 1, z: 3}
   blockColor: 2
   containedColors: 02000000
