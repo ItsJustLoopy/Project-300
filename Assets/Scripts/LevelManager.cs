@@ -89,7 +89,7 @@ public class LevelManager : MonoBehaviour
             }
         }
     }
-
+    //level generation
         public void GenerateLevel(int levelIndex, bool skipBlocks = false)
     {
         if (_loadedLevels.ContainsKey(levelIndex))
