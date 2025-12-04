@@ -18,6 +18,7 @@ public class ScreenManager : Singleton<ScreenManager>
     [SerializeField]
     private ScreenDictionary Screens;
 
+    private string PreviousScreen; //new
     private string ActiveScreen;
 
     private void Start()
@@ -32,23 +33,48 @@ public class ScreenManager : Singleton<ScreenManager>
         SceneManager.LoadScene("Game");
     }
 
-    public void ShowScreen(string screenName)
+    private void Update() //new
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            GoBackToPreviousScreen();
+        }
+    }
+
+    public void ShowScreen(string screenName)
+    {   
         if (screenName == ActiveScreen)
             return;
 
         if (!Screens.ContainsKey(screenName))
             return;
 
+        PreviousScreen = ActiveScreen; //new
+
+
         if (!string.IsNullOrEmpty(ActiveScreen))
         {
-            Screens[ActiveScreen].SetActive(false);
+            Screens[ActiveScreen].SetActive(false); //Turns the previous screen off  
         }
-
         ActiveScreen = screenName;
         Screens[ActiveScreen].SetActive(true);
     }
 
+    public void GoBackToPreviousScreen() //new
+    {
+        if (string.IsNullOrEmpty(PreviousScreen))
+            return;
+
+        //Switches off the current screen
+        Screens[ActiveScreen].SetActive(false);
+
+        //turns on previous screen
+        ActiveScreen = PreviousScreen;
+        Screens[ActiveScreen].SetActive(true);
+
+        //Clears previous
+        PreviousScreen = null;
+    }
     private void DisableAllScreens()
     {
         foreach (var screen in Screens.Values)
