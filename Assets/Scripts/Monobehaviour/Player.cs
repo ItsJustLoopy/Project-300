@@ -41,6 +41,7 @@ public class Player : MonoBehaviour
         {
             TryUseElevator();
             return;
+            Debug.Log("Used Elevator");
         }
 
         if (!isMoving && _moveAction.triggered)

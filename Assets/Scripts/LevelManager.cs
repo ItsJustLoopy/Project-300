@@ -136,6 +136,7 @@ public class LevelManager : MonoBehaviour
                     _groundTiles[x, y] = tile;
                 }
             }
+            
         }
         
         // Only spawn blocks if not loading from save
@@ -164,7 +165,7 @@ public class LevelManager : MonoBehaviour
                 levelObjects.blocks.Add(blockObj);
             }
         }
-        
+        Debug.Log("Level Generated");
         _loadedLevels[levelIndex] = levelObjects;
     }
 
@@ -198,7 +199,7 @@ public class LevelManager : MonoBehaviour
                 }
             }
         }
-        
+        Debug.Log("Level Unloaded");
         _loadedLevels.Remove(levelIndex);
     }
 
@@ -345,6 +346,7 @@ public class LevelManager : MonoBehaviour
         
         _playerInstance = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
         _playerScript = _playerInstance.GetComponent<Player>();
+        Debug.Log("Player Spawned");
     }
     
     public bool CheckOutOfBounds(Vector2Int position)
@@ -387,7 +389,7 @@ public class LevelManager : MonoBehaviour
             _elevatorBlocks[position] = block;
             block.originLevelIndex = currentLevelIndex;
             block.isAtOriginLevel = true;
-            //Debug.Log($"Registered elevator at {position} on level {currentLevelIndex}");
+            Debug.Log($"Registered elevator at {position} on level {currentLevelIndex}");
             
             int nextLevel = currentLevelIndex + 1;
             if (nextLevel < levelDatas.Length && !_loadedLevels.ContainsKey(nextLevel))

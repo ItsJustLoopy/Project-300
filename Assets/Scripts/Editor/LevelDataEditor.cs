@@ -13,6 +13,7 @@ public class LevelDataEditor : Editor
         if (GUILayout.Button("Open Level Editor", GUILayout.Height(40)))
         {
             LevelEditorWindow.OpenWindow((LevelData)target);
+            Debug.Log("Opened Level Editor");
         }
     }
 }
