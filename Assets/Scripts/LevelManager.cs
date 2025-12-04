@@ -31,7 +31,9 @@ public class LevelManager : MonoBehaviour
     private Player _playerScript;
     
     public Dictionary<Vector2Int, Block> _elevatorBlocks = new Dictionary<Vector2Int, Block>(); 
-    public Dictionary<int, LevelObjects> _loadedLevels = new Dictionary<int, LevelObjects>(); 
+    public Dictionary<int, LevelObjects> _loadedLevels = new Dictionary<int, LevelObjects>();
+
+    public DebugCollector DebugCollector;
     
     public class LevelObjects
     {
@@ -45,7 +47,7 @@ public class LevelManager : MonoBehaviour
     void Awake()  
     {
         Instance = this;
-        
+        DebugCollector = new DebugCollector();
         BackgroundGenerator.CreateAnimatedBackground(mainCamera.GetComponent<Camera>());
         
         if (levelDatas == null || levelDatas.Length == 0 || groundTilePrefab == null)

@@ -3,12 +3,15 @@ using UnityEditor;
 using System.IO;
 
 [InitializeOnLoad]
-public static class DebugCollector 
+public class DebugCollector
 {
     private static string logFilePath;
+    public static DebugCollector Instance;
 
-    static DebugCollector()
+    public DebugCollector()
     {
+        Instance = this;
+
         //set file path and folder if missing
         string folder = Path.Combine(Application.dataPath, "Scripts/Log");
         Directory.CreateDirectory(folder);
@@ -19,7 +22,6 @@ public static class DebugCollector
         //debug for finding where log is located
         Debug.Log($"File saved to {logFilePath} ");
         Application.logMessageReceived += HandleEditorLog;
-
     }
 
     private static void HandleEditorLog(string LogString, string stackTrace, LogType type)
