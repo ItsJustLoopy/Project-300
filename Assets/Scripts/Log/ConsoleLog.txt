@@ -1,0 +1,6 @@
+--New Session-- 
+[12:34:18] [Log] Combined into: Orange
+[12:34:19] [Log] Combined into: Black
+[12:34:20] [Log] Black block placed in hole - Elevator created!
+[12:34:20] [Log] Registered elevator at (6, 5) on level 1
+[12:34:20] [Log] Block placed in hole, it now acts as an elavator. Press Spacebar to use.
