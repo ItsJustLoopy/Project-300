@@ -9,6 +9,7 @@ public class Player : MonoBehaviour
     private PlayerInput _playerInput;
     private InputAction _moveAction;
     private InputAction _elevatorAction;
+    private InputAction _undoAction;
 
     public bool isMoving => _gridMover.isMoving;
 
@@ -28,6 +29,7 @@ public class Player : MonoBehaviour
         _playerInput = GetComponent<PlayerInput>();
         _moveAction = _playerInput.actions["Move"];
         _elevatorAction = _playerInput.actions["Elevator"];
+        _undoAction = _playerInput.actions["Undo"];
 
         if (_gridMover.gridPosition == Vector2Int.zero)
         {
@@ -53,6 +55,12 @@ public class Player : MonoBehaviour
             {
                 TryMovePlayer(direction);
             }
+        }
+        if (_undoAction.triggered)
+        {
+
+            MoveRecorder.UndoMove();
+            return;
         }
     }
 

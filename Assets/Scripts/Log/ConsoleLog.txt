@@ -1,7 +1,7 @@
 --New Session-- 
-[12:50:28] [Log] Generating level 1
-[12:50:28] [Log] Level Generated
-[12:50:28] [Log] Generating level 0
-[12:50:28] [Log] Level Generated
-[12:50:28] [Log] Game loaded successfully from: C:/Users/DiarmuidCoyne-STUDEN/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
-[12:50:28] [Log] Game loaded from save file
+[14:01:14] [Log] Generating level 1
+[14:01:14] [Log] Level Generated
+[14:01:14] [Log] Generating level 0
+[14:01:14] [Log] Level Generated
+[14:01:14] [Log] Game loaded successfully from: C:/Users/DiarmuidCoyne-STUDEN/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[14:01:14] [Log] Game loaded from save file
