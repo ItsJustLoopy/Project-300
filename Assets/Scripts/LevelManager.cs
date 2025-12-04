@@ -167,7 +167,6 @@ public class LevelManager : MonoBehaviour
                 levelObjects.blocks.Add(blockObj);
             }
         }
-        Debug.Log("Level Generated");
         _loadedLevels[levelIndex] = levelObjects;
     }
 
@@ -348,7 +347,7 @@ public class LevelManager : MonoBehaviour
         
         _playerInstance = Instantiate(playerPrefab, spawnPosition, Quaternion.identity);
         _playerScript = _playerInstance.GetComponent<Player>();
-        Debug.Log("Player Spawned");
+        
     }
     
     public bool CheckOutOfBounds(Vector2Int position)

@@ -145,6 +145,7 @@ public class Block : MonoBehaviour
             tile.isOccupied = false;
         }
         Destroy(otherBlock.gameObject);
+        Debug.Log($"Block instance{otherBlock} destroyed successfully");
     }
     
     private BlockData.BlockColor DetermineColorFromPrimaries(List<BlockData.BlockColor> primaries)

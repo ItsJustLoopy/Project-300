@@ -42,8 +42,9 @@ public class Player : MonoBehaviour
         if (!isMoving && _elevatorAction != null && _elevatorAction.triggered)
         {
             TryUseElevator();
-            return;
             Debug.Log("Used Elevator");
+            return;
+            
         }
 
         if (!isMoving && _moveAction.triggered)
@@ -58,7 +59,7 @@ public class Player : MonoBehaviour
         }
         if (_undoAction.triggered)
         {
-
+            Debug.Log("Undone move");
             MoveRecorder.UndoMove();
             return;
         }
@@ -183,6 +184,7 @@ public class Player : MonoBehaviour
                     
                     StartCoroutine(CombineBlocksAfterMove(block, targetBlock, blockTargetPosition));
                     Move(newPosition);
+                   
                 }
             }
             else if (targetTile != null && !targetTile.isOccupied)

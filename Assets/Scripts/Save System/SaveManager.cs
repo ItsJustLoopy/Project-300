@@ -1,7 +1,8 @@
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
-using Newtonsoft.Json;
+using UnityEngine.UIElements;
 
 public class SaveManager : MonoBehaviour
 {
@@ -98,6 +99,7 @@ public class SaveManager : MonoBehaviour
 
     public bool SaveFileExists()
     {
+        Debug.Log("Save file found");
         return File.Exists(SavePath);
     }
 
@@ -194,6 +196,7 @@ public class SaveManager : MonoBehaviour
         
         levelManager._loadedLevels.Clear();
         levelManager._elevatorBlocks.Clear();
+        Debug.Log("Gamestate cleared from save file");
     }
 
     private void RestoreBlocks(List<BlockSaveData> blockSaveDataList)
@@ -268,6 +271,7 @@ public class SaveManager : MonoBehaviour
         levelManager._playerInstance = Instantiate(levelManager.playerPrefab, spawnPosition, Quaternion.identity);
         Player player = levelManager._playerInstance.GetComponent<Player>();
         player.gridPosition = playerPosition;
+        Debug.Log($"Restored player at {spawnPosition}");
     }
 
     private void RestoreElevators(List<ElevatorSaveData> elevatorDataList)

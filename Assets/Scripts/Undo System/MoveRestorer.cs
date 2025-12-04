@@ -16,7 +16,7 @@ public static class MoveRestorer
         // Player
         record.player = new PlayerRecord
         {
-            gridPos = lm._playerScript.gridPosition
+            //gridPos = lm._playerScript.gridPosition
         };
 
         // Blocks
@@ -76,7 +76,7 @@ public static class MoveRestorer
 
         // Restore player
         lm.currentLevelIndex = record.currentLevelIndex;
-        lm._playerScript.gridPosition = record.player.gridPos;
+        //lm._playerScript.gridPosition = record.player.gridPos;
 
         lm._playerInstance.transform.position = new Vector3(
             record.player.gridPos.x,

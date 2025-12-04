@@ -29,6 +29,7 @@ public static class BackgroundGenerator
             backgroundMaterial.SetColor("_BrightColor", new Color(0.7f, 0.7f, 0.8f, 1f));
             backgroundMaterial.SetFloat("_AnimationSpeed", 0.5f);
             backgroundQuad.GetComponent<Renderer>().material = backgroundMaterial;
+            Debug.Log("Animated Background shader found");
         }
         else
         {

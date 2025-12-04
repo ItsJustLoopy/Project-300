@@ -16,8 +16,8 @@ public class DebugCollector
         string folder = Path.Combine(Application.dataPath, "Scripts/Log");
         Directory.CreateDirectory(folder);
         logFilePath = Path.Combine(folder, "ConsoleLog.txt");
+        
         //clearing out previous logs
-
         File.WriteAllText(logFilePath, "--New Session-- \n");
         //debug for finding where log is located
         Debug.Log($"File saved to {logFilePath} ");
