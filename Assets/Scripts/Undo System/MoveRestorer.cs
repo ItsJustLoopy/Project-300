@@ -10,13 +10,13 @@ public static class MoveRestorer
 
         LevelManager lm = LevelManager.Instance;
 
-        // Player
+        
         record.player = new PlayerRecord
         {
             //gridPos = lm._playerScript.gridPosition
         };
 
-        // Blocks
+        
         record.blocks = new List<BlockRecord>();
         foreach (var block in Object.FindObjectsByType<Block>(FindObjectsSortMode.None))
         {
