@@ -9,6 +9,7 @@ public static class MoveRecorder
     {
         var record = MoveRestorer.CreateMoveRecord();
         moveHistory.Push(record);
+        Debug.Log("Move Recorded");
     }
 
     public static void UndoMove()
@@ -18,6 +19,6 @@ public static class MoveRecorder
 
         MoveRecord record = moveHistory.Pop();
         MoveRestorer.RestoreMoveRecord(record);
-        Debug.Log("move undone");
+        Debug.Log("Move Undone");
     }
 }

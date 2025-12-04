@@ -3,10 +3,7 @@ using UnityEngine;
 
 public static class MoveRestorer
 {
-    // -------------------------
-    // CREATE RECORD
-    // -------------------------
-
+  
     public static MoveRecord CreateMoveRecord()
     {
         MoveRecord record = new MoveRecord();
@@ -38,10 +35,7 @@ public static class MoveRestorer
         return record;
     }
 
-    // -------------------------
-    // RESTORE RECORD
-    // -------------------------
-
+   
     public static void RestoreMoveRecord(MoveRecord record)
     {
         LevelManager lm = LevelManager.Instance;
@@ -86,5 +80,6 @@ public static class MoveRestorer
 
         // Update tile grid
         lm.UpdateGroundTilesForCurrentLevel();
+        Debug.Log("Move record restored");
     }
 }
