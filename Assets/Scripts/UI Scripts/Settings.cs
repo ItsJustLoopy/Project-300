@@ -30,7 +30,26 @@ public class Settings : ScreenBase
                 SelectedResolutionsList.Add(res);
             }
         }
+        ResDropDown.ClearOptions();
         ResDropDown.AddOptions(ResolutionStringList);
+
+        int currentIndex = 0;
+        for (int i = 0; i < SelectedResolutionsList.Count; i++)
+        {
+            if (SelectedResolutionsList[i].width == Screen.currentResolution.width && SelectedResolutionsList[i].height == Screen.currentResolution.height)
+            {
+                currentIndex = i;
+                break;
+            }
+        }
+
+        SelectedResolution = currentIndex;   //Store it
+        ResDropDown.value = currentIndex;    //Select it in the UI
+        ResDropDown.RefreshShownValue();     //Force display update
+
+        //Sync fullscreen toggle with actual state
+        FullScreenToggle.isOn = Screen.fullScreen;
+        IsFullScreen = Screen.fullScreen;
     }
     public void ChangeResolution()
     {
