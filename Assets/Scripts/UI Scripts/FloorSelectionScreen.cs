@@ -5,28 +5,26 @@ public class FloorSelectionScreen : MonoBehaviour
     public Transform ListContent;
     public LevelButton LevelButtonPrefab;
 
-    private LevelManager levelManager;
+    private LevelManager LevelManager;
 
     private void OnEnable()
     {
-        levelManager = FindAnyObjectByType<LevelManager>();
+        LevelManager = FindAnyObjectByType<LevelManager>();
 
-        if(levelManager == null)
+        if(LevelManager == null)
         {
             Debug.LogError("LevelManager not found.");
             return;
         }
 
-        for (int i = 0; i < levelManager.levelDatas.Length; i++)
+        for (int i = 0; i < LevelManager.levelDatas.Length; i++)
         {
-            LevelButton buttonInstance = Instantiate(LevelButtonPrefab, ListContent);
-            buttonInstance.txtLevelName.text = $"Level {i + 1}";
+            LevelButton ButtonInstance = Instantiate(LevelButtonPrefab, ListContent);
+            ButtonInstance.txtLevelName.text = $"Level {i + 1}";
 
-            buttonInstance.OnFloorSelected = () => 
+            ButtonInstance.OnFloorSelected = () => 
             {
-               var levelData =  levelManager.levelDatas[i];
-                //load this level
-               
+               var LevelData =  LevelManager.levelDatas[i]; //load this level
             };
         }
     }

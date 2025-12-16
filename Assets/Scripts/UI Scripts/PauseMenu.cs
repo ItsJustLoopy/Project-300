@@ -3,7 +3,7 @@ using UnityEngine.SceneManagement;
 
 public class PauseMenu : MonoBehaviour
 {
-    private void OnEnable()
+    public void OnEnable()
     {
         GameManager.Instance.Pause();  
     }
@@ -13,7 +13,7 @@ public class PauseMenu : MonoBehaviour
         ScreenManager.Instance.ShowScreen("HUD");    
     }
 
-    private void OnDisable()
+    public void OnDisable()
     {
         GameManager.Instance.UnPause();
     }
