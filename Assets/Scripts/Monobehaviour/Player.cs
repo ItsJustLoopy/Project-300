@@ -1,10 +1,13 @@
-
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+    public InventoryManager inventory; //sean addition
+    public Vector2Int facingDirection; //sean addition
+
+
     public GridMover _gridMover;
     private PlayerInput _playerInput;
     private InputAction _moveAction;
@@ -21,6 +24,9 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         _gridMover = new GridMover(this, transform);
+
+        inventory = GetComponent<InventoryManager>(); //sean addition
+
     }
 
     private void Start()
@@ -53,6 +59,19 @@ public class Player : MonoBehaviour
                 TryMovePlayer(direction);
             }
         }
+
+
+        #region sean input (can be removed for better implementation)
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            TryPickupBlock();
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            TryPlaceBlock();
+        }
+        #endregion
     }
 
     private void TryUseElevator()
@@ -96,6 +115,9 @@ public class Player : MonoBehaviour
 
     private void TryMovePlayer(Vector2Int direction)
     {
+        facingDirection = direction; //sean addition
+
+
         Vector2Int newPosition = gridPosition + direction;
 
         bool isBlockInHole = IsBlockInHoleAtPosition(newPosition);
@@ -242,4 +264,40 @@ public class Player : MonoBehaviour
         
         Debug.Log($"Combined into: {movingBlock.data.blockColor}");
     }
+
+
+    #region sean methods
+    void TryPickupBlock()
+    {
+        if (!inventory.IsEmpty())
+            return;
+
+        Vector2Int targetPos = gridPosition + facingDirection;
+
+        Block block = LevelManager.Instance.GetBlockAt(targetPos);
+        if (block == null)
+            return;
+
+        if (!block.CanBePickedUp)
+            return;
+
+        inventory.Store(block);
+        LevelManager.Instance.RemoveBlock(block);
+    }
+
+    void TryPlaceBlock()
+    {
+        if (inventory.IsEmpty())
+            return;
+
+        Vector2Int targetPos = gridPosition + facingDirection;
+
+        if (!LevelManager.Instance.CanPlaceBlockAt(targetPos))
+            return;
+
+        InventoryItem item = inventory.Take();
+        LevelManager.Instance.SpawnBlockFromInventory(targetPos, item);
+    }
+    #endregion
+
 }

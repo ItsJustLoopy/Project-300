@@ -6,6 +6,9 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
+    public bool CanBePickedUp = false; //Sean Addition
+    //public InventoryManager inventoryManager; //Sean Addition
+
     public bool canBePlacedInHole = true;
     public BlockData data;
     public int levelIndex = 0; 
@@ -27,6 +30,10 @@ public class Block : MonoBehaviour
 
     public void Start()
     {
+
+        //inventoryManager = GameObject.Find("HUDCanvas").GetComponent<InventoryManager>(); //Sean Addition
+
+
         _gridMover.gridPosition = new Vector2Int((int)data.BlockPosition.x, (int)data.BlockPosition.z);
     
         if (levelIndex == LevelManager.Instance.currentLevelIndex)
@@ -142,7 +149,7 @@ public class Block : MonoBehaviour
         Destroy(otherBlock.gameObject);
     }
     
-    private BlockData.BlockColor DetermineColorFromPrimaries(List<BlockData.BlockColor> primaries)
+    public static BlockData.BlockColor DetermineColorFromPrimaries(List<BlockData.BlockColor> primaries)
     {
         bool hasRed = primaries.Contains(BlockData.BlockColor.Red);
         bool hasYellow = primaries.Contains(BlockData.BlockColor.Yellow);
@@ -193,4 +200,38 @@ public class Block : MonoBehaviour
     {
         canBePlacedInHole = (data.blockColor == BlockData.BlockColor.Black);
     }
+
+    //private void OnPickup()
+    //{
+    //    //Does this need some way to check if the player is on an adjacent grid position?
+    //    inventoryManager.AddItem();
+    //    Destroy(gameObject);
+    //}
+
+    public void ClearFromTile() //sean addition
+    {
+        GroundTile tile = LevelManager.Instance.GetTileAt(gridPosition);
+        if (tile != null)
+        {
+            tile.isOccupied = false;
+            tile.occupant = null;
+        }
+    }
+    public void SetGridPositionImmediate(Vector2Int position) //sean edition - required for the levelmanager
+    {
+        _gridMover.gridPosition = position;
+    }
+
+    #region sean addition
+    public void ForceRestoreColors(List<BlockData.BlockColor> primaries)
+    {
+        _containedPrimaryColors = new List<BlockData.BlockColor>(primaries);
+
+        data.containedColors = new List<BlockData.BlockColor>(primaries);
+        data.blockColor = DetermineColorFromPrimaries(_containedPrimaryColors);
+
+        UpdateBlockAppearance();
+        UpdateElevatorStatus();
+    }
+    #endregion
 }

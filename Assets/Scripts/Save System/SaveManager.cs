@@ -53,6 +53,21 @@ public class SaveManager : MonoBehaviour
         data.currentLevelIndex = levelManager.currentLevelIndex;
         data.playerPosition = levelManager._playerInstance.GetComponent<Player>().gridPosition;
 
+        #region
+        // Player inventory
+        Player player = levelManager._playerInstance.GetComponent<Player>();
+        InventoryManager inventory = player.GetComponent<InventoryManager>();
+
+        if (inventory != null && !inventory.IsEmpty())
+        {
+            data.inventoryItem = inventory.heldItem;
+        }
+        else
+        {
+            data.inventoryItem = null;
+        }
+        #endregion
+
         // All blocks in the scene
         Block[] allBlocks = FindObjectsByType<Block>(FindObjectsSortMode.None);
         foreach (Block block in allBlocks)
@@ -148,6 +163,21 @@ public class SaveManager : MonoBehaviour
         
         RestoreBlocks(saveData.allBlocks);
         RestorePlayer(saveData.playerPosition);
+
+        #region sean addition
+        // Restore inventory AFTER player exists
+        if (saveData.inventoryItem != null)
+        {
+            Player player = levelManager._playerInstance.GetComponent<Player>();
+            InventoryManager inventory = player.GetComponent<InventoryManager>();
+
+            if (inventory != null)
+            {
+                inventory.heldItem = saveData.inventoryItem;
+            }
+        }
+        #endregion
+
         RestoreElevators(saveData.elevators);
         PositionCameraForLevel(saveData.currentLevelIndex);
         
@@ -268,6 +298,15 @@ public class SaveManager : MonoBehaviour
         levelManager._playerInstance = Instantiate(levelManager.playerPrefab, spawnPosition, Quaternion.identity);
         Player player = levelManager._playerInstance.GetComponent<Player>();
         player.gridPosition = playerPosition;
+
+        #region sean addition
+        // Restore inventory
+        InventoryManager inventory = player.GetComponent<InventoryManager>();
+        if (inventory != null)
+        {
+            inventory.heldItem = null; // default clear
+        }
+        #endregion
     }
 
     private void RestoreElevators(List<ElevatorSaveData> elevatorDataList)
@@ -318,7 +357,6 @@ public class SaveManager : MonoBehaviour
         return null;
     }
 
-
     public void DeleteSave()
     {
         if (SaveFileExists())
@@ -338,6 +376,5 @@ public class SaveManager : MonoBehaviour
     public void PrintSavePath()
     {
         Debug.Log($"Save file location: {SavePath}");
-    }
-    
+    } 
 }
