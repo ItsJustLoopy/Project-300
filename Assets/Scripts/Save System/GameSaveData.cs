@@ -5,7 +5,7 @@ using UnityEngine;
 [System.Serializable]
 public class GameSaveData
 {
-    public InventoryItem inventoryItem; //sean addition
+    //public InventoryItem inventoryItem; //sean addition
 
     public int currentLevelIndex;
     public Vector2IntSerializable playerPosition;

@@ -544,21 +544,21 @@ public class LevelManager : MonoBehaviour
     }
 
     #region sean methods
-    public Block GetBlockAt(Vector2Int position)
-    {
-        GroundTile tile = GetTileAt(position);
-        if (tile == null)
-            return null;
+    //public Block GetBlockAt(Vector2Int position)
+    //{
+    //    GroundTile tile = GetTileAt(position);
+    //    if (tile == null)
+    //        return null;
 
-        return tile.occupant;
-    }
+    //    return tile.occupant;
+    //}
     public void RemoveBlock(Block block)
     {
         block.ClearFromTile();
         Destroy(block.gameObject);
     }
 
-    public bool CanPlaceBlockAt(Vector2Int position)
+    public bool CanPlaceBlockAt(Vector2Int position) // this is calling my methd anyways, kill all clankers
     {
         if (CheckOutOfBounds(position))
             return false;
@@ -573,61 +573,19 @@ public class LevelManager : MonoBehaviour
         return true;
     }
 
-    public void SpawnBlockFromInventory(Vector2Int position, InventoryItem item)
+    public void PlaceExistingBlock(Vector2Int position, Block block)
     {
         float yOffset = currentLevelIndex * verticalSpacing;
-        Vector3 spawnPos = new Vector3(position.x, yOffset + 1f, position.y);
+        block.transform.position = new Vector3(position.x, yOffset + 1f, position.y);
 
-        //Find original BlockData asset by name
-        BlockData originalData = FindBlockDataByName(item.blockDataName);
-        if (originalData == null)
-        {
-            Debug.LogError($"BlockData not found for inventory item: {item.blockDataName}");
-            return;
-        }
-
-        //Instantiate block
-        GameObject blockObj = Instantiate(blockPrefab, spawnPos, Quaternion.identity);
-        Block block = blockObj.GetComponent<Block>();
-
-        //Create runtime BlockData copy (CRITICAL)
-        block.data = ScriptableObject.CreateInstance<BlockData>();
-        block.data.blockName = originalData.blockName;
-        block.data.blockPrefab = originalData.blockPrefab;
-
-        //Restore color state
-        block.data.blockColor = item.blockColor;
-        block.data.containedColors = new List<BlockData.BlockColor>(item.containedColors);
-
-        //Assign level/grid
         block.levelIndex = currentLevelIndex;
         block.SetGridPositionImmediate(position);
 
-        //Force block to rebuild internal state
-        block.ForceRestoreColors(item.containedColors);
+        block.gameObject.SetActive(true);
 
-        //Occupy tile
         GroundTile tile = GetTileAt(position);
         tile.isOccupied = true;
         tile.occupant = block;
-    }
-
-
-
-    private BlockData FindBlockDataByName(string blockDataName)
-    {
-        foreach (LevelData levelData in levelDatas)
-        {
-            if (levelData.blocks == null)
-                continue;
-
-            foreach (BlockData blockData in levelData.blocks)
-            {
-                if (blockData.name == blockDataName)
-                    return blockData;
-            }
-        }
-        return null;
     }
     #endregion
 }

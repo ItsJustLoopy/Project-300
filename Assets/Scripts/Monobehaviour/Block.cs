@@ -6,7 +6,8 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
-    public bool CanBePickedUp = false; //Sean Addition
+    public bool CanBePickedUp => !_isInHole && !isMoving;    //Sean Addition
+
     //public InventoryManager inventoryManager; //Sean Addition
 
     public bool canBePlacedInHole = true;
@@ -181,7 +182,7 @@ public class Block : MonoBehaviour
         }
     }
     
-    private Color GetColorFromBlockColor(BlockData.BlockColor blockColor)
+    public Color GetColorFromBlockColor(BlockData.BlockColor blockColor)
     {
         switch (blockColor)
         {
@@ -223,15 +224,6 @@ public class Block : MonoBehaviour
     }
 
     #region sean addition
-    public void ForceRestoreColors(List<BlockData.BlockColor> primaries)
-    {
-        _containedPrimaryColors = new List<BlockData.BlockColor>(primaries);
 
-        data.containedColors = new List<BlockData.BlockColor>(primaries);
-        data.blockColor = DetermineColorFromPrimaries(_containedPrimaryColors);
-
-        UpdateBlockAppearance();
-        UpdateElevatorStatus();
-    }
     #endregion
 }

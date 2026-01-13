@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -273,16 +274,15 @@ public class Player : MonoBehaviour
             return;
 
         Vector2Int targetPos = gridPosition + facingDirection;
+        //Block block = LevelManager.Instance.GetBlockAt(targetPos);
+        var arentTile = LevelManager.Instance.GetTileAt(targetPos);
+        Block block = arentTile.occupant;
 
-        Block block = LevelManager.Instance.GetBlockAt(targetPos);
-        if (block == null)
+        if (block == null || !block.CanBePickedUp)
             return;
 
-        if (!block.CanBePickedUp)
-            return;
-
+        block.ClearFromTile();
         inventory.Store(block);
-        LevelManager.Instance.RemoveBlock(block);
     }
 
     void TryPlaceBlock()
@@ -295,9 +295,11 @@ public class Player : MonoBehaviour
         if (!LevelManager.Instance.CanPlaceBlockAt(targetPos))
             return;
 
-        InventoryItem item = inventory.Take();
-        LevelManager.Instance.SpawnBlockFromInventory(targetPos, item);
+        Block block = inventory.Take();
+        LevelManager.Instance.PlaceExistingBlock(targetPos, block);
     }
+
+
     #endregion
 
 }

@@ -131,7 +131,6 @@ GameObject:
   - component: {fileID: 190342884}
   - component: {fileID: 190342883}
   - component: {fileID: 190342882}
-  - component: {fileID: 190342881}
   - component: {fileID: 190342886}
   m_Layer: 5
   m_Name: HudCanvas
@@ -140,18 +139,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &190342881
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 190342880}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9b1abf4cfc392ee488f6231aa5b954b7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::HUDScreen
 --- !u!114 &190342882
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -244,11 +231,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 190342880}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7e0c57aa4c7678b4e91cc46118bcb16b, type: 3}
+  m_Script: {fileID: 11500000, guid: 47e591a0b4f7ebd4b80fdbdf4edc4c6f, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
-  HeldBlock: {fileID: 0}
-  BlockData: {fileID: 0}
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryUI
+  inventory: {fileID: 0}
+  blockIcon: {fileID: 0}
 --- !u!1 &293174800
 GameObject:
   m_ObjectHideFlags: 0

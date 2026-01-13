@@ -3,30 +3,25 @@ using UnityEngine;
 
 public class InventoryManager : MonoBehaviour
 {
-    //public Block HeldBlock;
+    public Block heldBlock;
     //public BlockData BlockData;
-
-    public InventoryItem heldItem;
 
     public bool IsEmpty()
     {
-        return heldItem == null;
+        return heldBlock == null;
     }
 
     public void Store(Block block)
     {
-        heldItem = new InventoryItem
-        {
-            blockDataName = block.data.name,
-            blockColor = block.data.blockColor,
-            containedColors = new List<BlockData.BlockColor>(block.containedPrimaryColors)
-        };
+        heldBlock = block;
+        block.gameObject.SetActive(false);
     }
 
-    public InventoryItem Take()
+    public Block Take()
     {
-        InventoryItem item = heldItem;
-        heldItem = null;
-        return item;
+        Block block = heldBlock;
+        heldBlock = null;
+        return block;
     }
+
 }
