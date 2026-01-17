@@ -364,7 +364,7 @@ public class LevelManager : MonoBehaviour
         return false;
     }
     
-    public GroundTile GetTileAt(Vector2Int position)
+    public GroundTile GetTileAt(Vector2Int position) //used in block and player
     {
         
         if (CheckOutOfBounds(position))

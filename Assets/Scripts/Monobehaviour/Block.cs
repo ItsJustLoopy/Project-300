@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,13 +7,13 @@ public class Block : MonoBehaviour
 {
     public bool CanBePickedUp => !_isInHole && !isMoving;    //Sean Addition
 
-    //public InventoryManager inventoryManager; //Sean Addition
+    public BlockData.BlockColor currentColor;  //Sean Addition
 
     public bool canBePlacedInHole = true;
     public BlockData data;
-    public int levelIndex = 0; 
-    public int originLevelIndex = 0; 
-    public bool isAtOriginLevel = true; 
+    public int levelIndex = 0;
+    public int originLevelIndex = 0;
+    public bool isAtOriginLevel = true;
 
     private GridMover _gridMover;
     private bool _isInHole = false;
@@ -22,7 +21,8 @@ public class Block : MonoBehaviour
 
     public Vector2Int gridPosition => _gridMover.gridPosition;
     public bool isMoving => _gridMover.isMoving;
-    public List<BlockData.BlockColor> containedPrimaryColors => _containedPrimaryColors; 
+    public List<BlockData.BlockColor> containedPrimaryColors => _containedPrimaryColors;
+    public Color visualColor;
 
     private void Awake()
     {
@@ -32,11 +32,11 @@ public class Block : MonoBehaviour
     public void Start()
     {
 
-        //inventoryManager = GameObject.Find("HUDCanvas").GetComponent<InventoryManager>(); //Sean Addition
+        currentColor = data.blockColor;        //Sean Addition
 
 
         _gridMover.gridPosition = new Vector2Int((int)data.BlockPosition.x, (int)data.BlockPosition.z);
-    
+
         if (levelIndex == LevelManager.Instance.currentLevelIndex)
         {
             var tile = LevelManager.Instance.GetTileAt(gridPosition);
@@ -46,10 +46,10 @@ public class Block : MonoBehaviour
                 tile.isOccupied = true;
             }
         }
-        
+
         originLevelIndex = levelIndex;
-        
-        
+
+
         if (data.containedColors != null && data.containedColors.Count > 0)
         {
             _containedPrimaryColors = new List<BlockData.BlockColor>(data.containedColors);
@@ -58,15 +58,15 @@ public class Block : MonoBehaviour
         {
             _containedPrimaryColors.Add(data.blockColor);
         }
-        
+
         UpdateBlockAppearance();
         UpdateElevatorStatus();
     }
 
     private bool IsPrimaryColor(BlockData.BlockColor color)
     {
-        return color == BlockData.BlockColor.Red || 
-               color == BlockData.BlockColor.Yellow || 
+        return color == BlockData.BlockColor.Red ||
+               color == BlockData.BlockColor.Yellow ||
                color == BlockData.BlockColor.Blue;
     }
 
@@ -86,21 +86,21 @@ public class Block : MonoBehaviour
         Vector3 startPosition = transform.position;
         float myLevelY = levelIndex * LevelManager.Instance.verticalSpacing;
         Vector3 holePosition = new Vector3(targetPos.x, myLevelY + 1f, targetPos.y);
-        
+
         yield return StartCoroutine(_gridMover.MoveWithCustomAnimation(startPosition, holePosition, 0.1f));
-        
+
         _gridMover.gridPosition = targetPos;
         yield return StartCoroutine(PlaceDownInHole());
-    
+
         _isInHole = true;
         UpdateBlockAppearance();
     }
-    
+
     private IEnumerator PlaceDownInHole()
     {
         Vector3 startPosition = transform.position;
         Vector3 targetPosition = new Vector3(startPosition.x, startPosition.y - 1, startPosition.z);
-        
+
         yield return StartCoroutine(_gridMover.MoveWithCustomAnimation(startPosition, targetPosition, 0.1f));
     }
 
@@ -108,24 +108,24 @@ public class Block : MonoBehaviour
     {
         return _isInHole;
     }
-    
+
     public int GetTargetLevel()
     {
         if (isAtOriginLevel)
         {
-            return originLevelIndex + 1; 
+            return originLevelIndex + 1;
         }
-        return originLevelIndex; 
+        return originLevelIndex;
     }
-    
+
     public bool CanCombineWith(Block otherBlock)
     {
         return !_isInHole && !otherBlock.IsInHole();
     }
-    
+
     public void CombineWith(Block otherBlock)
     {
-        
+
         foreach (var color in otherBlock._containedPrimaryColors)
         {
             if (!_containedPrimaryColors.Contains(color))
@@ -133,14 +133,16 @@ public class Block : MonoBehaviour
                 _containedPrimaryColors.Add(color);
             }
         }
-        
-        
-        data.blockColor = DetermineColorFromPrimaries(_containedPrimaryColors);
-        data.containedColors = new List<BlockData.BlockColor>(_containedPrimaryColors);
-        
+
+
+        //data.blockColor = DetermineColorFromPrimaries(_containedPrimaryColors);
+        //data.containedColors = new List<BlockData.BlockColor>(_containedPrimaryColors);
+        currentColor = DetermineColorFromPrimaries(_containedPrimaryColors);
+
+
         UpdateBlockAppearance();
         UpdateElevatorStatus();
-        
+
         var tile = LevelManager.Instance.GetTileAt(otherBlock.gridPosition);
         if (tile != null)
         {
@@ -149,13 +151,13 @@ public class Block : MonoBehaviour
         }
         Destroy(otherBlock.gameObject);
     }
-    
+
     public static BlockData.BlockColor DetermineColorFromPrimaries(List<BlockData.BlockColor> primaries)
     {
         bool hasRed = primaries.Contains(BlockData.BlockColor.Red);
         bool hasYellow = primaries.Contains(BlockData.BlockColor.Yellow);
         bool hasBlue = primaries.Contains(BlockData.BlockColor.Blue);
-        
+
         if (hasRed && hasYellow && hasBlue)
             return BlockData.BlockColor.Black;
         if (hasRed && hasBlue)
@@ -164,24 +166,26 @@ public class Block : MonoBehaviour
             return BlockData.BlockColor.Orange;
         if (hasYellow && hasBlue)
             return BlockData.BlockColor.Green;
-        
+
         if (hasRed) return BlockData.BlockColor.Red;
         if (hasYellow) return BlockData.BlockColor.Yellow;
         if (hasBlue) return BlockData.BlockColor.Blue;
-        
+
         return BlockData.BlockColor.Red;
     }
-    
+
     private void UpdateBlockAppearance()
     {
         var renderer = GetComponent<Renderer>();
         if (renderer != null)
         {
-            Color visualColor = _isInHole ? Color.lightSlateGray : GetColorFromBlockColor(data.blockColor);
+            // visualColor = _isInHole ? Color.lightSlateGray : GetColorFromBlockColor(data.blockColor);
+            visualColor = _isInHole ? Color.lightSlateGray : GetColorFromBlockColor(data.blockColor); // sean change
+
             renderer.material.color = visualColor;
         }
     }
-    
+
     public Color GetColorFromBlockColor(BlockData.BlockColor blockColor)
     {
         switch (blockColor)
@@ -195,11 +199,14 @@ public class Block : MonoBehaviour
             case BlockData.BlockColor.Black: return Color.black;
             default: return Color.white;
         }
+
     }
-    
+
     private void UpdateElevatorStatus()
     {
-        canBePlacedInHole = (data.blockColor == BlockData.BlockColor.Black);
+        // canBePlacedInHole = (data.blockColor == BlockData.BlockColor.Black);
+
+        canBePlacedInHole = (currentColor == BlockData.BlockColor.Black); //sean change
     }
 
     //private void OnPickup()
@@ -222,8 +229,4 @@ public class Block : MonoBehaviour
     {
         _gridMover.gridPosition = position;
     }
-
-    #region sean addition
-
-    #endregion
 }

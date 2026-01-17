@@ -274,9 +274,15 @@ public class Player : MonoBehaviour
             return;
 
         Vector2Int targetPos = gridPosition + facingDirection;
+
         //Block block = LevelManager.Instance.GetBlockAt(targetPos);
-        var arentTile = LevelManager.Instance.GetTileAt(targetPos);
-        Block block = arentTile.occupant;
+
+        var parentTile = LevelManager.Instance.GetTileAt(targetPos);
+
+        if (parentTile == null)
+            return;
+
+        Block block = parentTile.occupant;
 
         if (block == null || !block.CanBePickedUp)
             return;
@@ -298,8 +304,5 @@ public class Player : MonoBehaviour
         Block block = inventory.Take();
         LevelManager.Instance.PlaceExistingBlock(targetPos, block);
     }
-
-
     #endregion
-
 }

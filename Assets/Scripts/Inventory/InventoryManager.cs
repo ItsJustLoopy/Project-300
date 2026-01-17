@@ -23,5 +23,4 @@ public class InventoryManager : MonoBehaviour
         heldBlock = null;
         return block;
     }
-
 }

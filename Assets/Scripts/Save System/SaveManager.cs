@@ -53,19 +53,19 @@ public class SaveManager : MonoBehaviour
         data.currentLevelIndex = levelManager.currentLevelIndex;
         data.playerPosition = levelManager._playerInstance.GetComponent<Player>().gridPosition;
 
-        #region
+        #region sean addit
         // Player inventory
-        Player player = levelManager._playerInstance.GetComponent<Player>();
-        InventoryManager inventory = player.GetComponent<InventoryManager>();
+        //Player player = levelManager._playerInstance.GetComponent<Player>();
+        //InventoryManager inventory = player.GetComponent<InventoryManager>();
 
-        if (inventory != null && !inventory.IsEmpty())
-        {
-            data.inventoryItem = inventory.heldItem;
-        }
-        else
-        {
-            data.inventoryItem = null;
-        }
+        //if (inventory != null && !inventory.IsEmpty())
+        //{
+        //    data.inventoryItem = inventory.heldItem;
+        //}
+        //else
+        //{
+        //    data.inventoryItem = null;
+        //}
         #endregion
 
         // All blocks in the scene
@@ -166,16 +166,16 @@ public class SaveManager : MonoBehaviour
 
         #region sean addition
         // Restore inventory AFTER player exists
-        if (saveData.inventoryItem != null)
-        {
-            Player player = levelManager._playerInstance.GetComponent<Player>();
-            InventoryManager inventory = player.GetComponent<InventoryManager>();
+        //if (saveData.inventoryItem != null)
+        //{
+        //    Player player = levelManager._playerInstance.GetComponent<Player>();
+        //    InventoryManager inventory = player.GetComponent<InventoryManager>();
 
-            if (inventory != null)
-            {
-                inventory.heldItem = saveData.inventoryItem;
-            }
-        }
+        //    if (inventory != null)
+        //    {
+        //        inventory.heldItem = saveData.inventoryItem;
+        //    }
+        //}
         #endregion
 
         RestoreElevators(saveData.elevators);
@@ -301,11 +301,11 @@ public class SaveManager : MonoBehaviour
 
         #region sean addition
         // Restore inventory
-        InventoryManager inventory = player.GetComponent<InventoryManager>();
-        if (inventory != null)
-        {
-            inventory.heldItem = null; // default clear
-        }
+        //InventoryManager inventory = player.GetComponent<InventoryManager>();
+        //if (inventory != null)
+        //{
+        //    inventory.heldItem = null; // default clear
+        //}
         #endregion
     }
 
