@@ -10,7 +10,6 @@ public class LevelManager : MonoBehaviour
     [Header("Level Data")]
     public LevelData[] levelDatas;
     
-    
     [Header("Level Settings")]
     public int currentLevelIndex = 0;
     public float verticalSpacing = 5f;
@@ -28,7 +27,7 @@ public class LevelManager : MonoBehaviour
     public LevelData _currentLevelData;
     private GroundTile[,] _groundTiles;
     public GameObject _playerInstance; 
-    private Player _playerScript;
+    public Player _playerScript;
     
     public Dictionary<Vector2Int, Block> _elevatorBlocks = new Dictionary<Vector2Int, Block>(); 
     public Dictionary<int, LevelObjects> _loadedLevels = new Dictionary<int, LevelObjects>(); 
@@ -45,6 +44,10 @@ public class LevelManager : MonoBehaviour
     void Awake()  
     {
         Instance = this;
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
         
         BackgroundGenerator.CreateAnimatedBackground(mainCamera.GetComponent<Camera>());
         
@@ -90,7 +93,7 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-        public void GenerateLevel(int levelIndex, bool skipBlocks = false)
+    public void GenerateLevel(int levelIndex, bool skipBlocks = false)
     {
         if (_loadedLevels.ContainsKey(levelIndex))
         {
@@ -143,7 +146,7 @@ public class LevelManager : MonoBehaviour
         {
             GameObject blocksParent = new GameObject($"Level_{levelIndex + 1}_Blocks");
             blocksParent.transform.position = new Vector3(0, yOffset, 0);
-            
+
             foreach (var blockData in levelData.blocks)
             {
                 Vector3 blockPosition = new Vector3(
@@ -151,20 +154,25 @@ public class LevelManager : MonoBehaviour
                     yOffset + 1f,
                     blockData.BlockPosition.z
                 );
-                
+
                 GameObject blockObj = Instantiate(blockPrefab, blockPosition, Quaternion.identity);
                 blockObj.transform.SetParent(blocksParent.transform);
                 Block blockComponent = blockObj.GetComponent<Block>();
                 if (blockComponent != null)
                 {
+                    // reference to the original asset data
                     blockComponent.data = blockData;
+
+                    // runtime data clone to mutate at runtime
+                    blockComponent.runtimeData = Instantiate(blockData);
+                    blockComponent.runtimeData.BlockPosition = new Vector3(blockData.BlockPosition.x, blockPosition.y, blockData.BlockPosition.z);
+
                     blockComponent.levelIndex = levelIndex;
                 }
-                
+
                 levelObjects.blocks.Add(blockObj);
             }
         }
-        
         _loadedLevels[levelIndex] = levelObjects;
     }
 
@@ -192,7 +200,7 @@ public class LevelManager : MonoBehaviour
             {
                 Block blockComponent = block.GetComponent<Block>();
                 
-                if (blockComponent == null || !blockComponent.IsInHole())
+                if (blockComponent == null || !blockComponent._isInHole)
                 {
                     Destroy(block);
                 }
@@ -385,9 +393,10 @@ public class LevelManager : MonoBehaviour
         if (!_elevatorBlocks.ContainsKey(position))
         {
             _elevatorBlocks[position] = block;
+            block.levelIndex = currentLevelIndex;
             block.originLevelIndex = currentLevelIndex;
             block.isAtOriginLevel = true;
-            //Debug.Log($"Registered elevator at {position} on level {currentLevelIndex}");
+            Debug.Log($"Registered elevator at {position} on level {currentLevelIndex}");
             
             int nextLevel = currentLevelIndex + 1;
             if (nextLevel < levelDatas.Length && !_loadedLevels.ContainsKey(nextLevel))
@@ -400,14 +409,20 @@ public class LevelManager : MonoBehaviour
 
     public bool IsElevatorAt(Vector2Int position)
     {
-        return _elevatorBlocks.ContainsKey(position);
+        if (_elevatorBlocks.TryGetValue(position, out var block))
+        {
+            // only consider it an elevator for the current level when it's in the hole and the block is on this level
+            return block != null && block._isInHole && block.levelIndex == currentLevelIndex;
+        }
+        return false;
     }
 
     public Block GetElevatorAt(Vector2Int position)
     {
-        if (_elevatorBlocks.ContainsKey(position))
+        if (_elevatorBlocks.TryGetValue(position, out var block))
         {
-            return _elevatorBlocks[position];
+            if (block != null && block._isInHole && block.levelIndex == currentLevelIndex)
+                return block;
         }
         return null;
     }
@@ -531,7 +546,7 @@ public class LevelManager : MonoBehaviour
         Block[] allBlocks = FindObjectsByType<Block>(FindObjectsSortMode.None);
         foreach (Block block in allBlocks)
         {
-            if (block.levelIndex == currentLevelIndex && !block.IsInHole())
+            if (block.levelIndex == currentLevelIndex && !block._isInHole)
             {
                 GroundTile tile = GetTileAt(block.gridPosition);
                 if (tile != null)

@@ -140,7 +140,7 @@ public class Player : MonoBehaviour
 
     private void HandleBlockInteraction(Block block, Vector2Int direction, Vector2Int newPosition)
     {
-        if (block.IsInHole())
+        if (block._isInHole)
         {
             Move(newPosition);
             return;

@@ -41,6 +41,7 @@ public class ElevatorSaveData
     public Vector2IntSerializable position;
     public int originLevelIndex;
     public bool isAtOriginLevel;
+    public int currentLevelIndex;
 }
 
 

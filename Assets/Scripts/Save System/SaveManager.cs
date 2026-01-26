@@ -57,16 +57,19 @@ public class SaveManager : MonoBehaviour
         Block[] allBlocks = FindObjectsByType<Block>(FindObjectsSortMode.None);
         foreach (Block block in allBlocks)
         {
+            var sourceData = block.runtimeData != null ? block.runtimeData : block.data;
+
             BlockSaveData blockData = new BlockSaveData
             {
                 gridPosition = block.gridPosition,
-                blockColor = block.data.blockColor,
-                containedColors = new List<BlockData.BlockColor>(block.data.containedColors),
+                blockColor = sourceData.blockColor,
+                containedColors = new List<BlockData.BlockColor>(sourceData.containedColors ?? new List<BlockData.BlockColor>()),
                 levelIndex = block.levelIndex,
                 originLevelIndex = block.originLevelIndex,
                 isAtOriginLevel = block.isAtOriginLevel,
-                isInHole = block.IsInHole(),
-                blockDataName = block.data.name
+                isInHole = block._isInHole,
+                // store original asset name so we can find the asset to instantiate on load
+                blockDataName = block.data != null ? block.data.name : (block.runtimeData != null ? block.runtimeData.name : "")
             };
             data.allBlocks.Add(blockData);
         }
@@ -81,7 +84,8 @@ public class SaveManager : MonoBehaviour
             {
                 position = pos,
                 originLevelIndex = elevatorBlock.originLevelIndex,
-                isAtOriginLevel = elevatorBlock.isAtOriginLevel
+                isAtOriginLevel = elevatorBlock.isAtOriginLevel,
+                currentLevelIndex = elevatorBlock.levelIndex
             };
 
             data.elevators.Add(elevatorData);
@@ -196,7 +200,8 @@ public class SaveManager : MonoBehaviour
         levelManager._elevatorBlocks.Clear();
     }
 
-    private void RestoreBlocks(List<BlockSaveData> blockSaveDataList)
+
+    public void RestoreBlocks(List<BlockSaveData> blockSaveDataList)
     {
         LevelManager levelManager = LevelManager.Instance;
 
@@ -219,28 +224,41 @@ public class SaveManager : MonoBehaviour
                 savedBlock.gridPosition.y
             );
 
-            // Instantiate block
+            // Instantiate block prefab
             GameObject blockObj = Instantiate(levelManager.blockPrefab, blockPosition, Quaternion.identity);
             Block block = blockObj.GetComponent<Block>();
 
-            // Restore block data
-            block.data = ScriptableObject.CreateInstance<BlockData>();
-            block.data.blockName = originalBlockData.blockName;
-            block.data.blockPrefab = originalBlockData.blockPrefab;
-            block.data.BlockPosition = new Vector3(savedBlock.gridPosition.x, yPos, savedBlock.gridPosition.y);
-            block.data.blockColor = savedBlock.blockColor;
-            block.data.containedColors = new List<BlockData.BlockColor>(savedBlock.containedColors);
+            // Assign asset ref and create runtime clone data
+            block.data = originalBlockData;
+            block.runtimeData = Instantiate(originalBlockData);
+
+            // Apply saved runtime state
+            block.runtimeData.BlockPosition = new Vector3(savedBlock.gridPosition.x, yPos, savedBlock.gridPosition.y);
+            block.runtimeData.blockColor = savedBlock.blockColor;
+            block.runtimeData.containedColors =
+                new List<BlockData.BlockColor>(savedBlock.containedColors ?? new List<BlockData.BlockColor>());
 
             block.levelIndex = savedBlock.levelIndex;
             block.originLevelIndex = savedBlock.originLevelIndex;
             block.isAtOriginLevel = savedBlock.isAtOriginLevel;
 
+            // Add the instantiated block to the LevelObjects list for that level 
+            if (levelManager._loadedLevels.TryGetValue(savedBlock.levelIndex, out var lvlObjs))
+            {
+                lvlObjs.blocks.Add(blockObj);
+            }
+
+            block.SetInHole(savedBlock.isInHole);
+
+            // register elevator 
             if (savedBlock.isInHole)
             {
-                var field = typeof(Block).GetField("_isInHole", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                field?.SetValue(block, true);
+                Vector2Int pos = new Vector2Int(savedBlock.gridPosition.x, savedBlock.gridPosition.y);
+                levelManager._elevatorBlocks[pos] = block;
             }
+
+            // Apply visuals and elevator status from runtimeData
+            block.ApplyRuntimeData();
 
             if (savedBlock.levelIndex == levelManager.currentLevelIndex && !savedBlock.isInHole)
             {
@@ -254,7 +272,8 @@ public class SaveManager : MonoBehaviour
         }
     }
 
-    private void RestorePlayer(Vector2IntSerializable playerPosition)
+
+    public void RestorePlayer(Vector2IntSerializable playerPosition)
     {
         LevelManager levelManager = LevelManager.Instance;
         
@@ -268,6 +287,8 @@ public class SaveManager : MonoBehaviour
         levelManager._playerInstance = Instantiate(levelManager.playerPrefab, spawnPosition, Quaternion.identity);
         Player player = levelManager._playerInstance.GetComponent<Player>();
         player.gridPosition = playerPosition;
+        
+        levelManager._playerScript = player;
     }
 
     private void RestoreElevators(List<ElevatorSaveData> elevatorDataList)
@@ -282,18 +303,23 @@ public class SaveManager : MonoBehaviour
             {
                 levelManager.GenerateLevel(elevatorData.originLevelIndex, skipBlocks: true);
             }
+            if (!levelManager._loadedLevels.ContainsKey(elevatorData.currentLevelIndex))
+            {
+                levelManager.GenerateLevel(elevatorData.currentLevelIndex, skipBlocks: true);
+            }
 
             Block[] allBlocks = FindObjectsByType<Block>(FindObjectsSortMode.None);
             foreach (Block block in allBlocks)
             {
-                if (block.gridPosition == position && block.IsInHole())
+                if (block.gridPosition == position && block._isInHole)
                 {
+                    block.levelIndex = elevatorData.currentLevelIndex;
+
                     levelManager._elevatorBlocks[position] = block;
                     block.originLevelIndex = elevatorData.originLevelIndex;
                     block.isAtOriginLevel = elevatorData.isAtOriginLevel;
-                    
                     Debug.Log($"Restored elevator at {position}, origin level: {elevatorData.originLevelIndex}," +
-                              $" isAtOrigin: {elevatorData.isAtOriginLevel}");
+                              $" isAtOrigin: {elevatorData.isAtOriginLevel}, current level: {elevatorData.currentLevelIndex}");
                     break;
                 }
             }
