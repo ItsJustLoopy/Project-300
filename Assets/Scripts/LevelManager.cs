@@ -31,8 +31,8 @@ public class LevelManager : MonoBehaviour
     private Player _playerScript;
     
     public Dictionary<Vector2Int, Block> _elevatorBlocks = new Dictionary<Vector2Int, Block>(); 
-    public Dictionary<int, LevelObjects> _loadedLevels = new Dictionary<int, LevelObjects>(); 
-    
+    public Dictionary<int, LevelObjects> _loadedLevels = new Dictionary<int, LevelObjects>();
+    public DebugCollector DebugCollector;
     public class LevelObjects
     {
         public List<GameObject> tiles = new List<GameObject>();
@@ -47,7 +47,7 @@ public class LevelManager : MonoBehaviour
         Instance = this;
         
         BackgroundGenerator.CreateAnimatedBackground(mainCamera.GetComponent<Camera>());
-        
+        DebugCollector = new DebugCollector();
         if (levelDatas == null || levelDatas.Length == 0 || groundTilePrefab == null)
         {
             Debug.LogError("Missing LevelData or GroundTile prefab and cannot generate level");
