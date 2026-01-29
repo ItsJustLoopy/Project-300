@@ -75,7 +75,7 @@ public class SaveManager : MonoBehaviour
         }
 
         // Elevator states
-        foreach (var kvp in levelManager._elevatorBlocks)
+        foreach (var kvp in levelManager.elevators.ElevatorBlocks)
         {
             Vector2IntSerializable pos = kvp.Key;
             Block elevatorBlock = kvp.Value;
@@ -92,7 +92,7 @@ public class SaveManager : MonoBehaviour
         }
 
         // Which levels are currently loaded
-        foreach (int levelIndex in levelManager._loadedLevels.Keys)
+        foreach (int levelIndex in levelManager.loader.GetLoadedLevelIndices())
         {
             data.loadedLevelIndices.Add(levelIndex);
         }
@@ -153,20 +153,10 @@ public class SaveManager : MonoBehaviour
         RestoreBlocks(saveData.allBlocks);
         RestorePlayer(saveData.playerPosition);
         RestoreElevators(saveData.elevators);
-        PositionCameraForLevel(saveData.currentLevelIndex);
+        levelManager.visuals.PositionCameraForLevel(saveData.currentLevelIndex);
         
         levelManager.UpdateLevelOpacities();
         levelManager.UpdateGroundTilesForCurrentLevel();
-    }
-
-    private void PositionCameraForLevel(int levelIndex)
-    {
-        LevelManager levelManager = LevelManager.Instance;
-        float targetLevelY = levelIndex * levelManager.verticalSpacing;
-        float cameraY = targetLevelY + 19f; 
-        
-        Vector3 currentCameraPos = levelManager.mainCamera.transform.position;
-        levelManager.mainCamera.transform.position = new Vector3(currentCameraPos.x, cameraY, currentCameraPos.z);
     }
 
     private static void ClearCurrentGameState()
@@ -184,7 +174,7 @@ public class SaveManager : MonoBehaviour
             Destroy(levelManager._playerInstance);
         }
 
-        foreach (var kvp in levelManager._loadedLevels)
+        foreach (var kvp in levelManager.loader.LoadedLevels)
         {
             foreach (GameObject tile in kvp.Value.tiles)
             {
@@ -196,8 +186,8 @@ public class SaveManager : MonoBehaviour
             }
         }
         
-        levelManager._loadedLevels.Clear();
-        levelManager._elevatorBlocks.Clear();
+        levelManager.loader.ClearLoadedLevels();
+        levelManager.elevators.ClearElevators();
     }
 
 
@@ -243,10 +233,7 @@ public class SaveManager : MonoBehaviour
             block.isAtOriginLevel = savedBlock.isAtOriginLevel;
 
             // Add the instantiated block to the LevelObjects list for that level 
-            if (levelManager._loadedLevels.TryGetValue(savedBlock.levelIndex, out var lvlObjs))
-            {
-                lvlObjs.blocks.Add(blockObj);
-            }
+            levelManager.loader.RegisterBlockInstance(savedBlock.levelIndex, blockObj);
 
             block.SetInHole(savedBlock.isInHole);
 
@@ -254,7 +241,7 @@ public class SaveManager : MonoBehaviour
             if (savedBlock.isInHole)
             {
                 Vector2Int pos = new Vector2Int(savedBlock.gridPosition.x, savedBlock.gridPosition.y);
-                levelManager._elevatorBlocks[pos] = block;
+                levelManager.elevators.SetElevatorAt(pos, block);
             }
 
             // Apply visuals and elevator status from runtimeData
@@ -299,11 +286,11 @@ public class SaveManager : MonoBehaviour
         {
             Vector2Int position = elevatorData.position.ToVector2Int();
 
-            if (!levelManager._loadedLevels.ContainsKey(elevatorData.originLevelIndex))
+            if (!levelManager.loader.LoadedLevels.ContainsKey(elevatorData.originLevelIndex))
             {
                 levelManager.GenerateLevel(elevatorData.originLevelIndex, skipBlocks: true);
             }
-            if (!levelManager._loadedLevels.ContainsKey(elevatorData.currentLevelIndex))
+            if (!levelManager.loader.LoadedLevels.ContainsKey(elevatorData.currentLevelIndex))
             {
                 levelManager.GenerateLevel(elevatorData.currentLevelIndex, skipBlocks: true);
             }
@@ -314,10 +301,9 @@ public class SaveManager : MonoBehaviour
                 if (block.gridPosition == position && block._isInHole)
                 {
                     block.levelIndex = elevatorData.currentLevelIndex;
-
-                    levelManager._elevatorBlocks[position] = block;
                     block.originLevelIndex = elevatorData.originLevelIndex;
                     block.isAtOriginLevel = elevatorData.isAtOriginLevel;
+                    levelManager.elevators.SetElevatorAt(position, block);
                     Debug.Log($"Restored elevator at {position}, origin level: {elevatorData.originLevelIndex}," +
                               $" isAtOrigin: {elevatorData.isAtOriginLevel}, current level: {elevatorData.currentLevelIndex}");
                     break;
