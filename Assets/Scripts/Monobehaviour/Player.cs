@@ -53,6 +53,11 @@ public class Player : MonoBehaviour
                 TryMovePlayer(direction);
             }
         }
+        
+        if (Input.GetKeyDown(KeyCode.U))
+        {
+            LevelManager.Instance.UndoLastMove();
+        }
     }
 
     private void TryUseElevator()
@@ -121,6 +126,7 @@ public class Player : MonoBehaviour
         if (targetTile != null && targetTile.isOccupied)
         {
             HandleBlockInteraction(targetTile.occupant, direction, newPosition);
+           
         }
         else
         {
@@ -239,6 +245,7 @@ public class Player : MonoBehaviour
     
     private IEnumerator CombineBlocksAfterMove(Block movingBlock, Block targetBlock, Vector2Int position)
     {
+        
         while (movingBlock.isMoving)
         {
             yield return null;

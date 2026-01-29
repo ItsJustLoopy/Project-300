@@ -6,6 +6,7 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
+    public int blockId = 0;
     public bool canBePlacedInHole = true;
     public BlockData data; // don't mutate this please
 
@@ -20,8 +21,14 @@ public class Block : MonoBehaviour
     private GridMover _gridMover;
     public bool _isInHole = false;
     private List<BlockData.BlockColor> _containedPrimaryColors = new List<BlockData.BlockColor>();
+    [NonSerialized]
+    public bool skipStartInit = false;
 
-    public Vector2Int gridPosition => _gridMover.gridPosition;
+    public Vector2Int gridPosition
+    {
+        get => _gridMover.gridPosition;
+        set => _gridMover.gridPosition = value;
+    }
     public bool isMoving => _gridMover.isMoving;
     public List<BlockData.BlockColor> containedPrimaryColors => _containedPrimaryColors;
 
@@ -40,6 +47,10 @@ public class Block : MonoBehaviour
 
     public void Start()
     {
+        if (skipStartInit)
+        {
+            return;
+        }
         EnsureRuntimeDataExists();
 
         if (runtimeData != null)
@@ -114,7 +125,7 @@ public class Block : MonoBehaviour
         float myLevelY = levelIndex * LevelManager.Instance.verticalSpacing;
         Vector3 holePosition = new Vector3(targetPos.x, myLevelY + 1f, targetPos.y);
 
-        yield return StartCoroutine(_gridMover.MoveWithCustomAnimation(startPosition, holePosition, 0.1f));
+        yield return StartCoroutine(_gridMover.MoveWithCustomAnimation(startPosition, holePosition, 0.1f, recordSnapshot: false));
 
         _gridMover.gridPosition = targetPos;
         yield return StartCoroutine(PlaceDownInHole());
@@ -128,7 +139,7 @@ public class Block : MonoBehaviour
         Vector3 startPosition = transform.position;
         Vector3 targetPosition = new Vector3(startPosition.x, startPosition.y - 1, startPosition.z);
 
-        yield return StartCoroutine(_gridMover.MoveWithCustomAnimation(startPosition, targetPosition, 0.1f));
+        yield return StartCoroutine(_gridMover.MoveWithCustomAnimation(startPosition, targetPosition, 0.1f, recordSnapshot: false));
     }
 
     public void SetInHole(bool inHole)

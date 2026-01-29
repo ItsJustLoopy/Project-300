@@ -40,6 +40,35 @@ public class LevelManager : MonoBehaviour
         public float targetOpacity = 1f;
         public float currentOpacity = 1f;
     }
+    
+    private struct BlockSnapshot
+    {
+        public int blockId;
+        public Block blockRef;
+        public BlockData data;
+        public BlockData.BlockColor blockColor;
+        public List<BlockData.BlockColor> containedColors;
+        public Vector3 worldPosition;
+        public Vector2Int gridPosition;
+        public int levelIndex;
+        public bool isInHole;
+        public bool isAtOriginLevel;
+        public int originLevelIndex;
+        public bool wasRegisteredAsElevator;
+        public Vector3 runtimeDataPosition;
+    }
+    
+    private class MoveRecord
+    {
+        public List<BlockSnapshot> blockSnapshots = new List<BlockSnapshot>();
+        public Vector3 playerWorldPosition;
+        public Vector2Int playerGridPosition;
+        public int playerLevelIndex;
+        public int levelIndex;
+    }
+    private List<MoveRecord> _undoStack = new List<MoveRecord>();
+    private int _maxUndo = 10;
+    private int _nextBlockId = 1;
 
     void Awake()  
     {
@@ -91,6 +120,8 @@ public class LevelManager : MonoBehaviour
                 SetLevelOpacity(lvl.Key, levelObjs.currentOpacity);
             }
         }
+        
+        
     }
 
     public void GenerateLevel(int levelIndex, bool skipBlocks = false)
@@ -168,12 +199,26 @@ public class LevelManager : MonoBehaviour
                     blockComponent.runtimeData.BlockPosition = new Vector3(blockData.BlockPosition.x, blockPosition.y, blockData.BlockPosition.z);
 
                     blockComponent.levelIndex = levelIndex;
+                    EnsureBlockId(blockComponent);
                 }
 
                 levelObjects.blocks.Add(blockObj);
             }
         }
         _loadedLevels[levelIndex] = levelObjects;
+    }
+
+    private void EnsureBlockId(Block block)
+    {
+        if (block == null)
+        {
+            return;
+        }
+        if (block.blockId == 0)
+        {
+            block.blockId = _nextBlockId;
+            _nextBlockId++;
+        }
     }
 
     private void UnloadLevel(int levelIndex)
@@ -210,7 +255,7 @@ public class LevelManager : MonoBehaviour
         _loadedLevels.Remove(levelIndex);
     }
 
-    private void ManageLoadedLevels()
+    private void ManageLoadedLevels(bool loadMissingLevels = true)
     {
         
         List<int> levelsToKeep = new List<int>();
@@ -247,7 +292,10 @@ public class LevelManager : MonoBehaviour
         {
             if (!_loadedLevels.ContainsKey(level))
             {
-                GenerateLevel(level);
+                if (loadMissingLevels)
+                {
+                    GenerateLevel(level);
+                }
             }
         }
         
@@ -435,7 +483,9 @@ public class LevelManager : MonoBehaviour
             Debug.LogError("No elevator found at position");
             yield break;
         }
-
+        
+        RecordSnapshot();
+        
         int targetLevel = elevator.GetTargetLevel();
         
         if (targetLevel < 0 || targetLevel >= levelDatas.Length)
@@ -542,7 +592,19 @@ public class LevelManager : MonoBehaviour
             }
         }
 
-        
+        for (int x = 0; x < levelData.levelHeight; x++)
+        {
+            for (int y = 0; y < levelData.levelHeight; y++)
+            {
+                GroundTile tile = _groundTiles[x, y];
+                if (tile != null)
+                {
+                    tile.occupant = null;
+                    tile.isOccupied = false;
+                }
+            }
+        }
+
         Block[] allBlocks = FindObjectsByType<Block>(FindObjectsSortMode.None);
         foreach (Block block in allBlocks)
         {
@@ -557,4 +619,187 @@ public class LevelManager : MonoBehaviour
             }
         }
     }
+    public void RecordSnapshot()
+    {
+        var record = new MoveRecord();
+        
+        // player
+        if (_playerInstance != null && _playerScript != null)
+        {
+            record.playerWorldPosition = _playerInstance.transform.position;
+            record.playerGridPosition = _playerScript.gridPosition;
+            record.playerLevelIndex = currentLevelIndex;
+        }
+
+        // blocks
+        Block[] allBlocks = FindObjectsByType<Block>(FindObjectsSortMode.None);
+        foreach (var block in allBlocks)
+        {
+            EnsureBlockId(block);
+            var sourceData = block.runtimeData != null ? block.runtimeData : block.data;
+            var containedColors = sourceData != null && sourceData.containedColors != null && sourceData.containedColors.Count > 0
+                ? new List<BlockData.BlockColor>(sourceData.containedColors)
+                : new List<BlockData.BlockColor>(block.containedPrimaryColors);
+            var snap = new BlockSnapshot
+            {
+                blockId = block.blockId,
+                blockRef = block,
+                data = block.data,
+                blockColor = sourceData != null ? sourceData.blockColor : BlockData.BlockColor.Red,
+                containedColors = containedColors,
+                worldPosition = block.transform.position,
+                gridPosition = block.gridPosition,
+                levelIndex = block.levelIndex,
+                isInHole = block._isInHole,
+                isAtOriginLevel = block.isAtOriginLevel,
+                originLevelIndex = block.originLevelIndex,
+                wasRegisteredAsElevator = (_elevatorBlocks.TryGetValue(block.gridPosition, out var b) && b == block),
+                runtimeDataPosition = block.runtimeData != null ? block.runtimeData.BlockPosition : block.transform.position
+            };
+            record.blockSnapshots.Add(snap);
+        }
+
+        _undoStack.Add(record);
+        while (_undoStack.Count > _maxUndo)
+        {
+            _undoStack.RemoveAt(0);
+        }
+    }
+    public void UndoLastMove()
+    {
+        if (_undoStack.Count == 0)
+        {
+            Debug.Log("Nothing to undo");
+            return;
+        }
+
+        MoveRecord record = null;
+        for (int i = _undoStack.Count - 1; i >= 0; i--)
+        {
+            if (_undoStack[i].playerLevelIndex == currentLevelIndex)
+            {
+                record = _undoStack[i];
+                _undoStack.RemoveRange(i, _undoStack.Count - i);
+                break;
+            }
+        }
+        if (record == null)
+        {
+            Debug.Log("Nothing to undo on this level");
+            return;
+        }
+
+        // restore blocks
+        _elevatorBlocks.Clear();
+        Block[] existingBlocks = FindObjectsByType<Block>(FindObjectsSortMode.None);
+        Dictionary<int, Block> existingById = new Dictionary<int, Block>();
+        foreach (var block in existingBlocks)
+        {
+            if (block == null) continue;
+            EnsureBlockId(block);
+            if (!existingById.ContainsKey(block.blockId))
+            {
+                existingById[block.blockId] = block;
+            }
+        }
+
+        HashSet<int> snapshotIds = new HashSet<int>();
+        foreach (var snap in record.blockSnapshots)
+        {
+            snapshotIds.Add(snap.blockId);
+            Block block;
+            if (!existingById.TryGetValue(snap.blockId, out block) || block == null)
+            {
+                GameObject blockObj = Instantiate(blockPrefab, snap.worldPosition, Quaternion.identity);
+                block = blockObj.GetComponent<Block>();
+                if (block == null)
+                {
+                    continue;
+                }
+                block.skipStartInit = true;
+                block.blockId = snap.blockId;
+                block.data = snap.data;
+                if (snap.data != null)
+                {
+                    block.runtimeData = Instantiate(snap.data);
+                }
+                if (block.runtimeData != null)
+                {
+                    block.runtimeData.blockColor = snap.blockColor;
+                    block.runtimeData.containedColors = snap.containedColors != null
+                        ? new List<BlockData.BlockColor>(snap.containedColors)
+                        : new List<BlockData.BlockColor>();
+                    block.runtimeData.BlockPosition = snap.runtimeDataPosition;
+                }
+                existingById[block.blockId] = block;
+            }
+
+            block.transform.position = snap.worldPosition;
+            block.gridPosition = snap.gridPosition;
+            block.levelIndex = snap.levelIndex;
+            block._isInHole = snap.isInHole;
+            block.isAtOriginLevel = snap.isAtOriginLevel;
+            block.originLevelIndex = snap.originLevelIndex;
+
+            if (block.runtimeData == null && snap.data != null)
+            {
+                block.runtimeData = Instantiate(snap.data);
+            }
+            if (block.runtimeData != null)
+            {
+                block.runtimeData.BlockPosition = snap.runtimeDataPosition;
+                block.runtimeData.blockColor = snap.blockColor;
+                block.runtimeData.containedColors = snap.containedColors != null
+                    ? new List<BlockData.BlockColor>(snap.containedColors)
+                    : new List<BlockData.BlockColor>();
+            }
+            block.ApplyRuntimeData();
+
+            if (snap.wasRegisteredAsElevator)
+            {
+                _elevatorBlocks[snap.gridPosition] = block;
+            }
+        }
+
+        foreach (var block in existingBlocks)
+        {
+            if (block == null) continue;
+            if (!snapshotIds.Contains(block.blockId))
+            {
+                Destroy(block.gameObject);
+            }
+        }
+        if (snapshotIds.Count > 0)
+        {
+            int maxId = 0;
+            foreach (int id in snapshotIds)
+            {
+                if (id > maxId) maxId = id;
+            }
+            _nextBlockId = maxId + 1;
+        }
+
+        // restore player and level
+        currentLevelIndex = record.playerLevelIndex;
+        _currentLevelData = Instantiate(levelDatas[currentLevelIndex]);
+        if (_playerInstance != null)
+        {
+            _playerInstance.transform.position = record.playerWorldPosition;
+        }
+        if (_playerScript != null)
+        {
+            _playerScript.gridPosition = record.playerGridPosition;
+        }
+
+        // refresh ground tiles, level loading and visuals
+        UpdateGroundTilesForCurrentLevel();
+        ManageLoadedLevels(loadMissingLevels: false);
+        UpdateLevelOpacities();
+
+        Debug.Log("Undo performed");
+    }
+
+
+    
+    
 }

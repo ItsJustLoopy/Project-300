@@ -24,6 +24,10 @@ public class GridMover
     {
         if (!isMoving)
         {
+            if (LevelManager.Instance != null)
+            {
+                LevelManager.Instance.RecordSnapshot();
+            }
             _coroutineRunner.StartCoroutine(MoveCoroutine(targetGridPos, yLevel));
         }
     }
@@ -51,9 +55,13 @@ public class GridMover
         OnMoveComplete?.Invoke(targetGridPos);
     }
     
-    public IEnumerator MoveWithCustomAnimation(Vector3 startPos, Vector3 endPos, float duration, Action onComplete = null)
+    public IEnumerator MoveWithCustomAnimation(Vector3 startPos, Vector3 endPos, float duration, Action onComplete = null, bool recordSnapshot = true)
     {
         isMoving = true;
+        if (recordSnapshot && LevelManager.Instance != null)
+        {
+            LevelManager.Instance.RecordSnapshot();
+        }
         float elapsed = 0f;
         
         while (elapsed < duration)
