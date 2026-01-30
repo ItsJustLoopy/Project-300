@@ -178,13 +178,14 @@ public class Player : MonoBehaviour
                     block.levelIndex = LevelManager.Instance.currentLevelIndex;
                     block.PushTo(blockTargetPosition);
                     
-                    StartCoroutine(CombineBlocksAfterMove(block, targetBlock, blockTargetPosition));
+                    StartCoroutine(CombineBlocksAfterMove(block, targetBlock, blockTargetPosition, direction));
                     Move(newPosition);
                 }
             }
             else if (targetTile != null && !targetTile.isOccupied)
             {
                 PushBlock(block, blockTargetPosition, newPosition);
+                StartCoroutine(ApplyArrowAfterMove(block, blockTargetPosition, direction));
                 Move(newPosition);
             }
         }
@@ -243,7 +244,7 @@ public class Player : MonoBehaviour
         Debug.Log("Block placed in hole, it now acts as an elavator. Press Spacebar to use.");
     }
     
-    private IEnumerator CombineBlocksAfterMove(Block movingBlock, Block targetBlock, Vector2Int position)
+    private IEnumerator CombineBlocksAfterMove(Block movingBlock, Block targetBlock, Vector2Int position, Vector2Int pushDirection)
     {
         
         while (movingBlock.isMoving)
@@ -261,7 +262,40 @@ public class Player : MonoBehaviour
             tile.occupant = movingBlock;
             tile.isOccupied = true;
         }
+        ApplyArrowAtPosition(movingBlock, position, pushDirection);
         
         Debug.Log($"Combined into: {movingBlock.data.blockColor}");
+    }
+
+    private IEnumerator ApplyArrowAfterMove(Block block, Vector2Int targetPos, Vector2Int pushDirection)
+    {
+        if (block == null)
+        {
+            yield break;
+        }
+        while (block.isMoving)
+        {
+            yield return null;
+        }
+        ApplyArrowAtPosition(block, targetPos, pushDirection);
+    }
+
+    private void ApplyArrowAtPosition(Block block, Vector2Int position, Vector2Int pushDirection)
+    {
+        if (block == null)
+        {
+            return;
+        }
+        GroundTile tile = LevelManager.Instance.GetTileAt(position);
+        if (tile == null)
+        {
+            return;
+        }
+        ArrowTile arrow = tile.GetComponent<ArrowTile>();
+        if (arrow == null)
+        {
+            return;
+        }
+        arrow.ApplyToBlock(block, pushDirection);
     }
 }

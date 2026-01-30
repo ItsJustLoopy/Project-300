@@ -8,9 +8,11 @@ public class LevelEditorWindow : EditorWindow
 {
     private LevelData _levelData;
 
-    private int _selectedTool; 
-    // 0 = Block, 1 = Hole  2 = Player 3 = Remove Block
+    private int _selectedTool;
+    // 0 = Block, 1 = Hole, 2 = Player, 3 = Remove Block, 4 = Arrow, 5 = Remove Arrow
     private BlockData.BlockColor _selectedBlockColor = BlockData.BlockColor.Red;
+    private BlockData.BlockColor _selectedArrowColor = BlockData.BlockColor.Red;
+    private ArrowDirection _selectedArrowDirection = ArrowDirection.Up;
     private const float CellSize = 50f;
     
     public static void OpenWindow(LevelData data)
@@ -49,6 +51,10 @@ public class LevelEditorWindow : EditorWindow
             _selectedTool = 2;
         if (GUILayout.Button("Remove Block", _selectedTool == 3 ? GUI.skin.box : GUI.skin.button))
             _selectedTool = 3;
+        if (GUILayout.Button("Place Arrow", _selectedTool == 4 ? GUI.skin.box : GUI.skin.button))
+            _selectedTool = 4;
+        if (GUILayout.Button("Remove Arrow", _selectedTool == 5 ? GUI.skin.box : GUI.skin.button))
+            _selectedTool = 5;
         
         EditorGUILayout.EndHorizontal();
         
@@ -65,6 +71,35 @@ public class LevelEditorWindow : EditorWindow
             if (GUILayout.Button("Blue", _selectedBlockColor == BlockData.BlockColor.Blue ? GUI.skin.box : GUI.skin.button))
                 _selectedBlockColor = BlockData.BlockColor.Blue;
             
+            EditorGUILayout.EndHorizontal();
+        }
+
+        if (_selectedTool == 4)
+        {
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Arrow Color:", EditorStyles.boldLabel);
+            EditorGUILayout.BeginHorizontal();
+
+            if (GUILayout.Button("Red", _selectedArrowColor == BlockData.BlockColor.Red ? GUI.skin.box : GUI.skin.button))
+                _selectedArrowColor = BlockData.BlockColor.Red;
+            if (GUILayout.Button("Yellow", _selectedArrowColor == BlockData.BlockColor.Yellow ? GUI.skin.box : GUI.skin.button))
+                _selectedArrowColor = BlockData.BlockColor.Yellow;
+            if (GUILayout.Button("Blue", _selectedArrowColor == BlockData.BlockColor.Blue ? GUI.skin.box : GUI.skin.button))
+                _selectedArrowColor = BlockData.BlockColor.Blue;
+
+            EditorGUILayout.EndHorizontal();
+
+            EditorGUILayout.Space();
+            EditorGUILayout.LabelField("Arrow Direction:", EditorStyles.boldLabel);
+            EditorGUILayout.BeginHorizontal();
+            if (GUILayout.Button("Up", _selectedArrowDirection == ArrowDirection.Up ? GUI.skin.box : GUI.skin.button))
+                _selectedArrowDirection = ArrowDirection.Up;
+            if (GUILayout.Button("Right", _selectedArrowDirection == ArrowDirection.Right ? GUI.skin.box : GUI.skin.button))
+                _selectedArrowDirection = ArrowDirection.Right;
+            if (GUILayout.Button("Down", _selectedArrowDirection == ArrowDirection.Down ? GUI.skin.box : GUI.skin.button))
+                _selectedArrowDirection = ArrowDirection.Down;
+            if (GUILayout.Button("Left", _selectedArrowDirection == ArrowDirection.Left ? GUI.skin.box : GUI.skin.button))
+                _selectedArrowDirection = ArrowDirection.Left;
             EditorGUILayout.EndHorizontal();
         }
         
@@ -118,6 +153,11 @@ public class LevelEditorWindow : EditorWindow
         {
             color = GetBlockDisplayColor(blockData.blockColor);
             label = blockData.blockColor.ToString();
+        }
+        else if (HasArrowAt(pos, out LevelData.ArrowData arrowData))
+        {
+            color = GetBlockDisplayColor(arrowData.color);
+            label = $"Arrow {arrowData.direction}";
         }
         
         EditorGUI.DrawRect(rect, color);
@@ -186,6 +226,16 @@ public class LevelEditorWindow : EditorWindow
             case 3:
                 RemoveBlockAt(pos);
                 break;
+            case 4:
+                if (pos != _levelData.holePosition && pos != _levelData.playerSpawn)
+                {
+                    RemoveArrowAt(pos);
+                    AddArrow(pos);
+                }
+                break;
+            case 5:
+                RemoveArrowAt(pos);
+                break;
         }
     }
     
@@ -231,6 +281,54 @@ public class LevelEditorWindow : EditorWindow
         }
 
         _levelData.blocks = blocks;
+        EditorUtility.SetDirty(_levelData);
+    }
+
+    private bool HasArrowAt(Vector2Int pos, out LevelData.ArrowData arrowData)
+    {
+        arrowData = null;
+        if (_levelData.arrows == null) return false;
+        foreach (var arrow in _levelData.arrows)
+        {
+            if (arrow.position == pos)
+            {
+                arrowData = arrow;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void AddArrow(Vector2Int pos)
+    {
+        if (_levelData.arrows == null)
+        {
+            _levelData.arrows = new List<LevelData.ArrowData>();
+        }
+
+        LevelData.ArrowData newArrow = new LevelData.ArrowData
+        {
+            position = pos,
+            direction = _selectedArrowDirection,
+            color = _selectedArrowColor
+        };
+        _levelData.arrows.Add(newArrow);
+        EditorUtility.SetDirty(_levelData);
+    }
+
+    private void RemoveArrowAt(Vector2Int pos)
+    {
+        if (_levelData.arrows == null) return;
+        List<LevelData.ArrowData> arrows = new List<LevelData.ArrowData>();
+        foreach (var arrow in _levelData.arrows)
+        {
+            if (arrow.position == pos)
+            {
+                continue;
+            }
+            arrows.Add(arrow);
+        }
+        _levelData.arrows = arrows;
         EditorUtility.SetDirty(_levelData);
     }
 }

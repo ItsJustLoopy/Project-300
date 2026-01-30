@@ -59,6 +59,16 @@ public class LevelLoader
 
                 levelObjects.tiles.Add(tileObj);
 
+                if (TryGetArrowAt(levelData, gridPos, out var arrowData))
+                {
+                    ArrowTile arrow = tileObj.GetComponent<ArrowTile>();
+                    if (arrow == null)
+                    {
+                        arrow = tileObj.AddComponent<ArrowTile>();
+                    }
+                    arrow.Initialize(arrowData.direction, arrowData.color, _levelManager.arrowPrefab, _levelManager.arrowYOffset);
+                }
+
                 if (levelIndex == _levelManager.currentLevelIndex)
                 {
                     if (_groundTiles == null)
@@ -101,6 +111,24 @@ public class LevelLoader
         }
 
         _loadedLevels[levelIndex] = levelObjects;
+    }
+
+    private bool TryGetArrowAt(LevelData levelData, Vector2Int position, out LevelData.ArrowData arrowData)
+    {
+        arrowData = null;
+        if (levelData.arrows == null)
+        {
+            return false;
+        }
+        foreach (var arrow in levelData.arrows)
+        {
+            if (arrow.position == position)
+            {
+                arrowData = arrow;
+                return true;
+            }
+        }
+        return false;
     }
 
     private void UnloadLevel(int levelIndex)

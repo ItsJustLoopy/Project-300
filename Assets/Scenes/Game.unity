@@ -538,9 +538,17 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1586556189}
     - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: arrowPrefab
+      value: 
+      objectReference: {fileID: 940601355602993765, guid: 9a193274f5d10e768b94460302db8ca3, type: 3}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
       propertyPath: blockPrefab
       value: 
       objectReference: {fileID: 6032227448271808410, guid: 7becbc391eb556a80b5b8e7aafa69cf1, type: 3}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: arrowYOffset
+      value: 0.52
+      objectReference: {fileID: 0}
     - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
       propertyPath: playerPrefab
       value: 

@@ -10,6 +10,7 @@ public class BlockData : ScriptableObject
 
     public enum BlockColor
     {
+        White,
         Red,
         Yellow,
         Blue,

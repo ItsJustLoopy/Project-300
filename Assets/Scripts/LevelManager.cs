@@ -16,11 +16,13 @@ public class LevelManager : MonoBehaviour
     public GameObject groundTilePrefab;
     public GameObject playerPrefab;
     public GameObject blockPrefab;
+    public GameObject arrowPrefab;
     public GameObject mainCamera;
 
     [Header("Visuals")]
     public float inactiveLevelOpacity = 0.2f;
     public float fadeTransitionSpeed = 0.5f;
+    public float arrowYOffset = 0.02f;
 
     public LevelData _currentLevelData;
     public GameObject _playerInstance;

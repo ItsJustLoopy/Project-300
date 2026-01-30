@@ -101,7 +101,7 @@ public class Block : MonoBehaviour
         ApplyRuntimeData();
     }
 
-    private bool IsPrimaryColor(BlockData.BlockColor color)
+    public bool IsPrimaryColor(BlockData.BlockColor color)
     {
         return color == BlockData.BlockColor.Red ||
                color == BlockData.BlockColor.Yellow ||
@@ -216,7 +216,7 @@ public class Block : MonoBehaviour
         if (hasYellow) return BlockData.BlockColor.Yellow;
         if (hasBlue) return BlockData.BlockColor.Blue;
 
-        return BlockData.BlockColor.Red;
+        return BlockData.BlockColor.White;
     }
 
     private void UpdateBlockAppearance()
@@ -234,6 +234,7 @@ public class Block : MonoBehaviour
     {
         switch (blockColor)
         {
+            case BlockData.BlockColor.White: return Color.white;
             case BlockData.BlockColor.Red: return Color.red;
             case BlockData.BlockColor.Yellow: return Color.yellow;
             case BlockData.BlockColor.Blue: return Color.blue;
@@ -254,13 +255,50 @@ public class Block : MonoBehaviour
     // helper to apply runtime data after load/restore
     public void ApplyRuntimeData()
     {
+        EnsureRuntimeDataExists();
         // ensure internal lists reflect runtimeData
         if (runtimeData != null)
         {
             if (runtimeData.containedColors != null)
                 _containedPrimaryColors = new List<BlockData.BlockColor>(runtimeData.containedColors);
         }
+        SyncRuntimeFromPrimaries();
         UpdateBlockAppearance();
         UpdateElevatorStatus();
+    }
+
+    private void SyncRuntimeFromPrimaries()
+    {
+        if (runtimeData == null)
+        {
+            return;
+        }
+        runtimeData.containedColors = new List<BlockData.BlockColor>(_containedPrimaryColors);
+        runtimeData.blockColor = DetermineColorFromPrimaries(_containedPrimaryColors);
+    }
+
+    public void AddPrimaryColor(BlockData.BlockColor color)
+    {
+        if (!IsPrimaryColor(color))
+        {
+            return;
+        }
+        if (!_containedPrimaryColors.Contains(color))
+        {
+            _containedPrimaryColors.Add(color);
+        }
+        SyncRuntimeFromPrimaries();
+        ApplyRuntimeData();
+    }
+
+    public void RemovePrimaryColor(BlockData.BlockColor color)
+    {
+        if (!IsPrimaryColor(color))
+        {
+            return;
+        }
+        _containedPrimaryColors.Remove(color);
+        SyncRuntimeFromPrimaries();
+        ApplyRuntimeData();
     }
 }
