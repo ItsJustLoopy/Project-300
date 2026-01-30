@@ -1,4 +1,3 @@
-
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -31,6 +30,15 @@ public class Block : MonoBehaviour
     }
     public bool isMoving => _gridMover.isMoving;
     public List<BlockData.BlockColor> containedPrimaryColors => _containedPrimaryColors;
+
+    private bool IsImmovable
+    {
+        get
+        {
+            var source = runtimeData != null ? runtimeData : data;
+            return source != null && source.isImmovable;
+        }
+    }
 
     private void Awake()
     {
@@ -91,11 +99,24 @@ public class Block : MonoBehaviour
                 _containedPrimaryColors.Add(color);
             }
         }
-        // sync runtimeData with internal state
-        if (runtimeData != null)
+
+        if (IsImmovable)
         {
-            runtimeData.containedColors = new List<BlockData.BlockColor>(_containedPrimaryColors);
-            runtimeData.blockColor = DetermineColorFromPrimaries(_containedPrimaryColors);
+            _containedPrimaryColors.Clear();
+            if (runtimeData != null)
+            {
+                runtimeData.blockColor = BlockData.BlockColor.White;
+                runtimeData.containedColors = new List<BlockData.BlockColor>();
+            }
+        }
+        else
+        {
+            // sync runtimeData with internal state
+            if (runtimeData != null)
+            {
+                runtimeData.containedColors = new List<BlockData.BlockColor>(_containedPrimaryColors);
+                runtimeData.blockColor = DetermineColorFromPrimaries(_containedPrimaryColors);
+            }
         }
 
         ApplyRuntimeData();
@@ -110,12 +131,21 @@ public class Block : MonoBehaviour
 
     public void PushTo(Vector2Int targetPos)
     {
+        if (IsImmovable)
+        {
+            return;
+        }
+
         float levelY = levelIndex * LevelManager.Instance.verticalSpacing + 1f;
         _gridMover.MoveToGrid(targetPos, levelY);
     }
 
     public void PushToThenPlaceInHole(Vector2Int targetPos)
     {
+        if (IsImmovable)
+        {
+            return;
+        }
         StartCoroutine(MoveToHole(targetPos));
     }
 
@@ -156,11 +186,28 @@ public class Block : MonoBehaviour
 
     public bool CanCombineWith(Block otherBlock)
     {
+        if (IsImmovable)
+        {
+            return false;
+        }
+        if (otherBlock != null && otherBlock.IsImmovable)
+        {
+            return false;
+        }
         return !_isInHole && !otherBlock._isInHole;
     }
 
     public void CombineWith(Block otherBlock)
     {
+        if (IsImmovable)
+        {
+            return;
+        }
+        if (otherBlock != null && otherBlock.IsImmovable)
+        {
+            return;
+        }
+
         // ensure runtime clones exist
         EnsureRuntimeDataExists();
         otherBlock.EnsureRuntimeDataExists();
@@ -180,21 +227,10 @@ public class Block : MonoBehaviour
             runtimeData.containedColors = new List<BlockData.BlockColor>(_containedPrimaryColors);
         }
 
-        UpdateBlockAppearance(); 
+        UpdateBlockAppearance();
         UpdateElevatorStatus();
+		Destroy(otherBlock.gameObject);
 
-        if (AudioManager.Instance != null)
-        {
-            AudioManager.Instance.PlayBlockCombineSound();
-        }
-
-        var tile = LevelManager.Instance.GetTileAt(otherBlock.gridPosition);
-        if (tile != null)
-        {
-            tile.occupant = null;
-            tile.isOccupied = false;
-        }
-        Destroy(otherBlock.gameObject);
     }
 
     private BlockData.BlockColor DetermineColorFromPrimaries(List<BlockData.BlockColor> primaries)
@@ -224,6 +260,12 @@ public class Block : MonoBehaviour
         var renderer = GetComponent<Renderer>();
         if (renderer != null)
         {
+            if (IsImmovable)
+            {
+                renderer.material.color = Color.white;
+                return;
+            }
+
             var colorSource = runtimeData != null ? runtimeData.blockColor : data.blockColor;
             Color visualColor = _isInHole ? Color.lightSlateGray : GetColorFromBlockColor(colorSource);
             renderer.material.color = visualColor;
@@ -248,6 +290,12 @@ public class Block : MonoBehaviour
 
     private void UpdateElevatorStatus()
     {
+        if (IsImmovable)
+        {
+            canBePlacedInHole = false;
+            return;
+        }
+
         var colorSource = runtimeData != null ? runtimeData.blockColor : data.blockColor;
         canBePlacedInHole = (colorSource == BlockData.BlockColor.Black);
     }
@@ -256,6 +304,20 @@ public class Block : MonoBehaviour
     public void ApplyRuntimeData()
     {
         EnsureRuntimeDataExists();
+
+        if (IsImmovable)
+        {
+            _containedPrimaryColors.Clear();
+            if (runtimeData != null)
+            {
+                runtimeData.blockColor = BlockData.BlockColor.White;
+                runtimeData.containedColors = new List<BlockData.BlockColor>();
+            }
+            UpdateBlockAppearance();
+            UpdateElevatorStatus();
+            return;
+        }
+
         // ensure internal lists reflect runtimeData
         if (runtimeData != null)
         {
@@ -279,6 +341,11 @@ public class Block : MonoBehaviour
 
     public void AddPrimaryColor(BlockData.BlockColor color)
     {
+        if (IsImmovable)
+        {
+            return;
+        }
+
         if (!IsPrimaryColor(color))
         {
             return;
@@ -293,6 +360,11 @@ public class Block : MonoBehaviour
 
     public void RemovePrimaryColor(BlockData.BlockColor color)
     {
+        if (IsImmovable)
+        {
+            return;
+        }
+
         if (!IsPrimaryColor(color))
         {
             return;

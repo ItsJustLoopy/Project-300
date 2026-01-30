@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class BlockData : ScriptableObject
 {
     public string blockName = "Block";
+    public bool isImmovable = false;
     public GameObject blockPrefab;
     public Vector3 BlockPosition;
 

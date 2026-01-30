@@ -1,4 +1,3 @@
-
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -146,6 +145,16 @@ public class Player : MonoBehaviour
 
     private void HandleBlockInteraction(Block block, Vector2Int direction, Vector2Int newPosition)
     {
+        if (block == null)
+        {
+            return;
+        }
+
+        if (block.runtimeData != null ? block.runtimeData.isImmovable : (block.data != null && block.data.isImmovable))
+        {
+            return;
+        }
+
         if (block._isInHole)
         {
             Move(newPosition);
@@ -165,19 +174,27 @@ public class Player : MonoBehaviour
         else if (!targetOutOfBounds && !targetIsHole)
         {
             GroundTile targetTile = LevelManager.Instance.GetTileAt(blockTargetPosition);
-            
+
             if (targetTile != null && targetTile.isOccupied && targetTile.occupant != null)
             {
                 Block targetBlock = targetTile.occupant;
-                
+
+                bool targetIsImmovable = targetBlock.runtimeData != null
+                    ? targetBlock.runtimeData.isImmovable
+                    : (targetBlock.data != null && targetBlock.data.isImmovable);
+                if (targetIsImmovable)
+                {
+                    return;
+                }
+
                 if (block.CanCombineWith(targetBlock))
                 {
                     LevelManager.Instance.GetTileAt(newPosition).occupant = null;
                     LevelManager.Instance.GetTileAt(newPosition).isOccupied = false;
-                    
+
                     block.levelIndex = LevelManager.Instance.currentLevelIndex;
                     block.PushTo(blockTargetPosition);
-                    
+
                     StartCoroutine(CombineBlocksAfterMove(block, targetBlock, blockTargetPosition, direction));
                     Move(newPosition);
                 }
