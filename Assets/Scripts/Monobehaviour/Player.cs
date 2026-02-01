@@ -35,6 +35,7 @@ public class Player : MonoBehaviour
         _playerInput = GetComponent<PlayerInput>();
         _moveAction = _playerInput.actions["Move"];
         _elevatorAction = _playerInput.actions["Elevator"];
+        facingDirection = Vector2Int.up; //sean addition, iniatializes the direction the player is facing at startup
 
         if (_gridMover.gridPosition == Vector2Int.zero)
         {

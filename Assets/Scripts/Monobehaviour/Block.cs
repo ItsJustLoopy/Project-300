@@ -138,6 +138,9 @@ public class Block : MonoBehaviour
         //data.blockColor = DetermineColorFromPrimaries(_containedPrimaryColors);
         //data.containedColors = new List<BlockData.BlockColor>(_containedPrimaryColors);
         currentColor = DetermineColorFromPrimaries(_containedPrimaryColors);
+        data.blockColor = currentColor;
+        data.containedColors = new List<BlockData.BlockColor>(_containedPrimaryColors); //sean changes
+
 
 
         UpdateBlockAppearance();
@@ -180,7 +183,8 @@ public class Block : MonoBehaviour
         if (renderer != null)
         {
             // visualColor = _isInHole ? Color.lightSlateGray : GetColorFromBlockColor(data.blockColor);
-            visualColor = _isInHole ? Color.lightSlateGray : GetColorFromBlockColor(data.blockColor); // sean change
+            // visualColor = _isInHole ? Color.lightSlateGray : GetColorFromBlockColor(data.blockColor); 
+            visualColor = _isInHole ? Color.lightSlateGray : GetColorFromBlockColor(currentColor);  // sean change
 
             renderer.material.color = visualColor;
         }

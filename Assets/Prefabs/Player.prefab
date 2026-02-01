@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 3811795521227194551}
   - component: {fileID: 6819147041088847898}
   - component: {fileID: 4223277703173410541}
+  - component: {fileID: -1217992933111536494}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -125,8 +126,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aee725063ecd41075816d2fa03854715, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  gridPosition: {x: 0, y: 0}
-  isMoving: 0
+  inventory: {fileID: -1217992933111536494}
+  facingDirection: {x: 0, y: 0}
 --- !u!114 &4223277703173410541
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -157,3 +158,16 @@ MonoBehaviour:
   m_DefaultActionMap: Player
   m_SplitScreenIndex: -1
   m_Camera: {fileID: 0}
+--- !u!114 &-1217992933111536494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 245656063605951332}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e0c57aa4c7678b4e91cc46118bcb16b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::InventoryManager
+  heldBlock: {fileID: 0}
