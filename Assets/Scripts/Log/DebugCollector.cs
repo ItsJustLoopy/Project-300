@@ -1,37 +1,56 @@
 using UnityEngine;
-using UnityEditor;
 using System.IO;
 
-[InitializeOnLoad]
-public class DebugCollector
+public class DebugCollector : MonoBehaviour
 {
     private static string logFilePath;
-    public static DebugCollector Instance;
 
-    public DebugCollector()
+    
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
+    private static void Init()
     {
-        Instance = this;
-
-        //set file path and folder if missing
-        string folder = Path.Combine(Application.dataPath, "Scripts/Log");
-        Directory.CreateDirectory(folder);
-        logFilePath = Path.Combine(folder, "ConsoleLog.txt");
-        
-        //clearing out previous logs
-        File.WriteAllText(logFilePath, "--New Session-- \n");
-        //debug for finding where log is located
-        Debug.Log($"File saved to {logFilePath} ");
-        Application.logMessageReceived += HandleEditorLog;
+        //creating a game object to allow code to run in windows build
+        var go = new GameObject("DebugCollector");
+        DontDestroyOnLoad(go);
+        go.AddComponent<DebugCollector>();
     }
 
-    private static void HandleEditorLog(string LogString, string stackTrace, LogType type)
+    private void Awake()
     {
-        string entry = $"[{System.DateTime.Now:HH:mm:ss}] [{type}] {LogString}\n";
-        //includes stack trace for errors and exceptions
+        //ensures logs are wrote to the correct file
+        string folder = Path.Combine(Application.persistentDataPath, "Log");
+        Directory.CreateDirectory(folder);
+
+        logFilePath = Path.Combine(folder, "ConsoleLog.txt");
+
+        File.WriteAllText(logFilePath, "-- New Session --\n");
+
+        Debug.Log($"Log file saved to: {logFilePath}");
+
+        Application.logMessageReceived += HandleLog;
+    }
+
+    private void OnDestroy()
+    {
+        Application.logMessageReceived -= HandleLog;
+    }
+
+    private static void HandleLog(string logString, string stackTrace, LogType type)
+    {
+        string entry = $"[{System.DateTime.Now:HH:mm:ss}] [{type}] {logString}\n";
+
         if (type == LogType.Error || type == LogType.Exception)
         {
             entry += stackTrace + "\n";
         }
-        File.AppendAllText(logFilePath, entry);
+
+        try
+        {
+            File.AppendAllText(logFilePath, entry);
+        }
+        catch
+        {
+            // Avoid recursive logging
+        }
     }
 }
