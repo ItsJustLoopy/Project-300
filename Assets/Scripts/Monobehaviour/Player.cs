@@ -1,9 +1,14 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Player : MonoBehaviour
 {
+    public InventoryManager inventory; //sean addition
+    public Vector2Int facingDirection; //sean addition
+
+
     public GridMover _gridMover;
     private PlayerInput _playerInput;
     private InputAction _moveAction;
@@ -20,6 +25,9 @@ public class Player : MonoBehaviour
     private void Awake()
     {
         _gridMover = new GridMover(this, transform);
+
+        inventory = GetComponent<InventoryManager>(); //sean addition
+
     }
 
     private void Start()
@@ -57,6 +65,19 @@ public class Player : MonoBehaviour
         {
             LevelManager.Instance.UndoLastMove();
         }
+
+
+        #region sean input (can be removed for better implementation)
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            TryPickupBlock();
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+        {
+            TryPlaceBlock();
+        }
+        #endregion
     }
 
     private void TryUseElevator()
@@ -105,6 +126,9 @@ public class Player : MonoBehaviour
 
     private void TryMovePlayer(Vector2Int direction)
     {
+        facingDirection = direction; //sean addition
+
+
         Vector2Int newPosition = gridPosition + direction;
 
         bool isBlockInHole = IsBlockInHoleAtPosition(newPosition);
@@ -125,7 +149,6 @@ public class Player : MonoBehaviour
         if (targetTile != null && targetTile.isOccupied)
         {
             HandleBlockInteraction(targetTile.occupant, direction, newPosition);
-           
         }
         else
         {
@@ -174,7 +197,7 @@ public class Player : MonoBehaviour
         else if (!targetOutOfBounds && !targetIsHole)
         {
             GroundTile targetTile = LevelManager.Instance.GetTileAt(blockTargetPosition);
-
+            
             if (targetTile != null && targetTile.isOccupied && targetTile.occupant != null)
             {
                 Block targetBlock = targetTile.occupant;
@@ -315,4 +338,44 @@ public class Player : MonoBehaviour
         }
         arrow.ApplyToBlock(block, pushDirection);
     }
+
+
+    #region sean methods
+    void TryPickupBlock()
+    {
+        if (!inventory.IsEmpty())
+            return;
+
+        Vector2Int targetPos = gridPosition + facingDirection;
+
+        //Block block = LevelManager.Instance.GetBlockAt(targetPos);
+
+        var parentTile = LevelManager.Instance.GetTileAt(targetPos);
+
+        if (parentTile == null)
+            return;
+
+        Block block = parentTile.occupant;
+
+        if (block == null || !block.CanBePickedUp)
+            return;
+
+        block.ClearFromTile();
+        inventory.Store(block);
+    }
+
+    void TryPlaceBlock()
+    {
+        if (inventory.IsEmpty())
+            return;
+
+        Vector2Int targetPos = gridPosition + facingDirection;
+
+        if (!LevelManager.Instance.CanPlaceBlockAt(targetPos))
+            return;
+
+        Block block = inventory.Take();
+        LevelManager.Instance.PlaceExistingBlock(targetPos, block);
+    }
+    #endregion
 }
