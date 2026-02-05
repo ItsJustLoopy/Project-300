@@ -6,7 +6,10 @@ using UnityEngine.SceneManagement;
 
 //SerializableDictionaryBase requires the Serialized Dictionary Lite package to be installed.
 [Serializable]
-public class ScreenDictionary: SerializableDictionaryBase<string, GameObject> { }
+public class ScreenDictionary: SerializableDictionaryBase<string, GameObject> 
+{ 
+
+}
 
 public class ScreenManager : Singleton<ScreenManager>
 {
@@ -33,7 +36,7 @@ public class ScreenManager : Singleton<ScreenManager>
         SceneManager.LoadScene("Game");
     }
 
-    private void Update() //new
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
@@ -49,8 +52,7 @@ public class ScreenManager : Singleton<ScreenManager>
         if (!Screens.ContainsKey(screenName))
             return;
 
-        PreviousScreen = ActiveScreen; //new
-
+        PreviousScreen = ActiveScreen;
 
         if (!string.IsNullOrEmpty(ActiveScreen))
         {
@@ -60,7 +62,7 @@ public class ScreenManager : Singleton<ScreenManager>
         Screens[ActiveScreen].SetActive(true);
     }
 
-    public void GoBackToPreviousScreen() //new
+    public void GoBackToPreviousScreen()
     {
         if (string.IsNullOrEmpty(PreviousScreen))
             return;
@@ -72,7 +74,7 @@ public class ScreenManager : Singleton<ScreenManager>
         ActiveScreen = PreviousScreen;
         Screens[ActiveScreen].SetActive(true);
 
-        //Clears previous
+        //Clears previous as what previousscreen is now logged as is the one we just returned from
         PreviousScreen = null;
     }
     private void DisableAllScreens()

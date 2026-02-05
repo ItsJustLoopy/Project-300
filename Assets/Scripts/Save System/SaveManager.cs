@@ -10,6 +10,18 @@ public class SaveManager : MonoBehaviour
     private const string SAVE_FILENAME = "gamesave.json";
     private string SavePath => Path.Combine(Application.persistentDataPath, SAVE_FILENAME);
 
+    [Header("Save Settings")]
+    [SerializeField] private float saveDebounceSeconds = 0.25f;
+
+    private static string NormalizeBlockDataName(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return "";
+        return name.Replace("(Clone)", "").Trim();
+    }
+
+    private Coroutine _pendingSaveCoroutine;
+    private float _lastSaveTime = -999f;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -20,6 +32,43 @@ public class SaveManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveGame();
+    }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus)
+        {
+            SaveGame();
+        }
+    }
+
+    public void RequestSave()
+    {
+        if (Instance == null) return;
+
+        if (_pendingSaveCoroutine != null)
+        {
+            StopCoroutine(_pendingSaveCoroutine);
+        }
+
+        _pendingSaveCoroutine = StartCoroutine(SaveSoonCoroutine());
+    }
+
+    private System.Collections.IEnumerator SaveSoonCoroutine()
+    {
+        float remaining = saveDebounceSeconds - (Time.unscaledTime - _lastSaveTime);
+        if (remaining > 0f)
+        {
+            yield return new WaitForSecondsRealtime(remaining);
+        }
+
+        _pendingSaveCoroutine = null;
+        SaveGame();
     }
 
     public void SaveGame()
@@ -36,6 +85,7 @@ public class SaveManager : MonoBehaviour
         try
         {
             File.WriteAllText(SavePath, json);
+            _lastSaveTime = Time.unscaledTime;
             Debug.Log($"Game saved successfully to: {SavePath}");
         }
         catch (System.Exception e)
@@ -49,30 +99,65 @@ public class SaveManager : MonoBehaviour
         GameSaveData data = new GameSaveData();
         LevelManager levelManager = LevelManager.Instance;
 
-        // Level info
         data.currentLevelIndex = levelManager.currentLevelIndex;
         data.playerPosition = levelManager._playerInstance.GetComponent<Player>().gridPosition;
 
-        // All blocks in the scene
+        InventoryManager inv = null;
+        if (levelManager._playerInstance != null)
+        {
+            inv = levelManager._playerInstance.GetComponent<InventoryManager>();
+        }
+
+        if (inv != null && inv.HasItem)
+        {
+            var src = inv.HeldRuntime != null ? inv.HeldRuntime : inv.HeldAsset;
+
+            data.inventory.hasItem = true;
+
+            string assetName = inv.HeldAsset != null ? inv.HeldAsset.name : "";
+            string fallbackName = src != null ? src.name : "";
+            data.inventory.heldBlockDataName = NormalizeBlockDataName(!string.IsNullOrEmpty(assetName) ? assetName : fallbackName);
+
+            data.inventory.blockColor = src != null ? src.blockColor : BlockData.BlockColor.White;
+            data.inventory.containedColors = src != null && src.containedColors != null
+                ? new List<BlockData.BlockColor>(src.containedColors)
+                : new List<BlockData.BlockColor>();
+        }
+        else
+        {
+            if (inv == null)
+            {
+                Debug.LogWarning("[SaveManager] Player InventoryManager not found; inventory will not be saved.");
+            }
+
+            data.inventory.hasItem = false;
+            data.inventory.heldBlockDataName = "";
+            data.inventory.containedColors = new List<BlockData.BlockColor>();
+            data.inventory.blockColor = BlockData.BlockColor.White;
+        }
+
         Block[] allBlocks = FindObjectsByType<Block>(FindObjectsSortMode.None);
         foreach (Block block in allBlocks)
         {
+            var sourceData = block.runtimeData != null ? block.runtimeData : block.data;
+
             BlockSaveData blockData = new BlockSaveData
             {
                 gridPosition = block.gridPosition,
-                blockColor = block.data.blockColor,
-                containedColors = new List<BlockData.BlockColor>(block.data.containedColors),
+                blockColor = sourceData.blockColor,
+                containedColors = new System.Collections.Generic.List<BlockData.BlockColor>(sourceData.containedColors ?? new System.Collections.Generic.List<BlockData.BlockColor>()),
                 levelIndex = block.levelIndex,
                 originLevelIndex = block.originLevelIndex,
                 isAtOriginLevel = block.isAtOriginLevel,
-                isInHole = block.IsInHole(),
-                blockDataName = block.data.name
+                isInHole = block._isInHole,
+                
+                blockDataName = NormalizeBlockDataName(block.data != null ? block.data.name : (block.runtimeData != null ? block.runtimeData.name : ""))
             };
             data.allBlocks.Add(blockData);
         }
 
         // Elevator states
-        foreach (var kvp in levelManager._elevatorBlocks)
+        foreach (var kvp in levelManager.elevators.ElevatorBlocks)
         {
             Vector2IntSerializable pos = kvp.Key;
             Block elevatorBlock = kvp.Value;
@@ -81,14 +166,15 @@ public class SaveManager : MonoBehaviour
             {
                 position = pos,
                 originLevelIndex = elevatorBlock.originLevelIndex,
-                isAtOriginLevel = elevatorBlock.isAtOriginLevel
+                isAtOriginLevel = elevatorBlock.isAtOriginLevel,
+                currentLevelIndex = elevatorBlock.levelIndex
             };
 
             data.elevators.Add(elevatorData);
         }
 
         // Which levels are currently loaded
-        foreach (int levelIndex in levelManager._loadedLevels.Keys)
+        foreach (int levelIndex in levelManager.loader.GetLoadedLevelIndices())
         {
             data.loadedLevelIndices.Add(levelIndex);
         }
@@ -149,20 +235,55 @@ public class SaveManager : MonoBehaviour
         RestoreBlocks(saveData.allBlocks);
         RestorePlayer(saveData.playerPosition);
         RestoreElevators(saveData.elevators);
-        PositionCameraForLevel(saveData.currentLevelIndex);
-        
+        RestoreInventory(saveData.inventory);
+
+        levelManager.visuals.PositionCameraForLevel(saveData.currentLevelIndex);
+
         levelManager.UpdateLevelOpacities();
         levelManager.UpdateGroundTilesForCurrentLevel();
     }
 
-    private void PositionCameraForLevel(int levelIndex)
+    private void RestoreInventory(InventorySaveData invData)
     {
+        if (invData == null || !invData.hasItem)
+            return;
+
         LevelManager levelManager = LevelManager.Instance;
-        float targetLevelY = levelIndex * levelManager.verticalSpacing;
-        float cameraY = targetLevelY + 19f; 
-        
-        Vector3 currentCameraPos = levelManager.mainCamera.transform.position;
-        levelManager.mainCamera.transform.position = new Vector3(currentCameraPos.x, cameraY, currentCameraPos.z);
+        if (levelManager == null || levelManager._playerInstance == null)
+        {
+            Debug.LogWarning("[SaveManager] Cannot restore inventory: player instance not spawned yet.");
+            return;
+        }
+
+        InventoryManager inventory = levelManager._playerInstance.GetComponent<InventoryManager>();
+        if (inventory == null)
+        {
+            Debug.LogWarning("[SaveManager] Cannot restore inventory: InventoryManager component missing on player prefab.");
+            return;
+        }
+
+        string normalized = NormalizeBlockDataName(invData.heldBlockDataName);
+        BlockData asset = FindBlockDataByName(normalized);
+        if (asset == null)
+        {
+            Debug.LogWarning($"[SaveManager] Could not restore inventory: BlockData not found: '{normalized}' (saved as '{invData.heldBlockDataName}')");
+            return;
+        }
+
+        BlockData runtime = Instantiate(asset);
+        runtime.blockColor = invData.blockColor;
+        runtime.containedColors = invData.containedColors != null
+            ? new List<BlockData.BlockColor>(invData.containedColors)
+            : new List<BlockData.BlockColor>();
+
+        inventory.SetHeldFromSave(asset, runtime);
+
+
+        Player player = levelManager._playerInstance.GetComponent<Player>();
+        if (player != null)
+        {
+            player.inventory = inventory;
+        }
     }
 
     private static void ClearCurrentGameState()
@@ -180,7 +301,7 @@ public class SaveManager : MonoBehaviour
             Destroy(levelManager._playerInstance);
         }
 
-        foreach (var kvp in levelManager._loadedLevels)
+        foreach (var kvp in levelManager.loader.LoadedLevels)
         {
             foreach (GameObject tile in kvp.Value.tiles)
             {
@@ -192,11 +313,12 @@ public class SaveManager : MonoBehaviour
             }
         }
         
-        levelManager._loadedLevels.Clear();
-        levelManager._elevatorBlocks.Clear();
+        levelManager.loader.ClearLoadedLevels();
+        levelManager.elevators.ClearElevators();
     }
 
-    private void RestoreBlocks(List<BlockSaveData> blockSaveDataList)
+
+    public void RestoreBlocks(List<BlockSaveData> blockSaveDataList)
     {
         LevelManager levelManager = LevelManager.Instance;
 
@@ -219,28 +341,38 @@ public class SaveManager : MonoBehaviour
                 savedBlock.gridPosition.y
             );
 
-            // Instantiate block
+            // Instantiate block prefab
             GameObject blockObj = Instantiate(levelManager.blockPrefab, blockPosition, Quaternion.identity);
             Block block = blockObj.GetComponent<Block>();
 
-            // Restore block data
-            block.data = ScriptableObject.CreateInstance<BlockData>();
-            block.data.blockName = originalBlockData.blockName;
-            block.data.blockPrefab = originalBlockData.blockPrefab;
-            block.data.BlockPosition = new Vector3(savedBlock.gridPosition.x, yPos, savedBlock.gridPosition.y);
-            block.data.blockColor = savedBlock.blockColor;
-            block.data.containedColors = new List<BlockData.BlockColor>(savedBlock.containedColors);
+            // Assign asset ref and create runtime clone data
+            block.data = originalBlockData;
+            block.runtimeData = Instantiate(originalBlockData);
+
+            // Apply saved runtime state
+            block.runtimeData.BlockPosition = new Vector3(savedBlock.gridPosition.x, yPos, savedBlock.gridPosition.y);
+            block.runtimeData.blockColor = savedBlock.blockColor;
+            block.runtimeData.containedColors =
+                new List<BlockData.BlockColor>(savedBlock.containedColors ?? new List<BlockData.BlockColor>());
 
             block.levelIndex = savedBlock.levelIndex;
             block.originLevelIndex = savedBlock.originLevelIndex;
             block.isAtOriginLevel = savedBlock.isAtOriginLevel;
 
+            // Add the instantiated block to the LevelObjects list for that level 
+            levelManager.loader.RegisterBlockInstance(savedBlock.levelIndex, blockObj);
+
+            block.SetInHole(savedBlock.isInHole);
+
+            // register elevator 
             if (savedBlock.isInHole)
             {
-                var field = typeof(Block).GetField("_isInHole", 
-                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                field?.SetValue(block, true);
+                Vector2Int pos = new Vector2Int(savedBlock.gridPosition.x, savedBlock.gridPosition.y);
+                levelManager.elevators.SetElevatorAt(pos, block);
             }
+
+            // Apply visuals and elevator status from runtimeData
+            block.ApplyRuntimeData();
 
             if (savedBlock.levelIndex == levelManager.currentLevelIndex && !savedBlock.isInHole)
             {
@@ -254,7 +386,8 @@ public class SaveManager : MonoBehaviour
         }
     }
 
-    private void RestorePlayer(Vector2IntSerializable playerPosition)
+
+    public void RestorePlayer(Vector2IntSerializable playerPosition)
     {
         LevelManager levelManager = LevelManager.Instance;
         
@@ -268,6 +401,8 @@ public class SaveManager : MonoBehaviour
         levelManager._playerInstance = Instantiate(levelManager.playerPrefab, spawnPosition, Quaternion.identity);
         Player player = levelManager._playerInstance.GetComponent<Player>();
         player.gridPosition = playerPosition;
+        
+        levelManager._playerScript = player;
     }
 
     private void RestoreElevators(List<ElevatorSaveData> elevatorDataList)
@@ -278,22 +413,26 @@ public class SaveManager : MonoBehaviour
         {
             Vector2Int position = elevatorData.position.ToVector2Int();
 
-            if (!levelManager._loadedLevels.ContainsKey(elevatorData.originLevelIndex))
+            if (!levelManager.loader.LoadedLevels.ContainsKey(elevatorData.originLevelIndex))
             {
                 levelManager.GenerateLevel(elevatorData.originLevelIndex, skipBlocks: true);
+            }
+            if (!levelManager.loader.LoadedLevels.ContainsKey(elevatorData.currentLevelIndex))
+            {
+                levelManager.GenerateLevel(elevatorData.currentLevelIndex, skipBlocks: true);
             }
 
             Block[] allBlocks = FindObjectsByType<Block>(FindObjectsSortMode.None);
             foreach (Block block in allBlocks)
             {
-                if (block.gridPosition == position && block.IsInHole())
+                if (block.gridPosition == position && block._isInHole)
                 {
-                    levelManager._elevatorBlocks[position] = block;
+                    block.levelIndex = elevatorData.currentLevelIndex;
                     block.originLevelIndex = elevatorData.originLevelIndex;
                     block.isAtOriginLevel = elevatorData.isAtOriginLevel;
-                    
+                    levelManager.elevators.SetElevatorAt(position, block);
                     Debug.Log($"Restored elevator at {position}, origin level: {elevatorData.originLevelIndex}," +
-                              $" isAtOrigin: {elevatorData.isAtOriginLevel}");
+                              $" isAtOrigin: {elevatorData.isAtOriginLevel}, current level: {elevatorData.currentLevelIndex}");
                     break;
                 }
             }
@@ -339,5 +478,4 @@ public class SaveManager : MonoBehaviour
     {
         Debug.Log($"Save file location: {SavePath}");
     }
-    
 }

@@ -12,13 +12,25 @@ public class GameSaveData
     public List<int> loadedLevelIndices;
     public string saveTimestamp;
 
+    public InventorySaveData inventory;
+
     public GameSaveData()
     {
         allBlocks = new List<BlockSaveData>();
         elevators = new List<ElevatorSaveData>();
         loadedLevelIndices = new List<int>();
+        inventory = new InventorySaveData();
         saveTimestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     }
+}
+
+[System.Serializable]
+public class InventorySaveData
+{
+    public bool hasItem;
+    public string heldBlockDataName;
+    public BlockData.BlockColor blockColor;
+    public List<BlockData.BlockColor> containedColors;
 }
 
 [System.Serializable]
@@ -41,6 +53,7 @@ public class ElevatorSaveData
     public Vector2IntSerializable position;
     public int originLevelIndex;
     public bool isAtOriginLevel;
+    public int currentLevelIndex;
 }
 
 
