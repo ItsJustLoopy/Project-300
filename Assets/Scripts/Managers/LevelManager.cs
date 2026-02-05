@@ -32,9 +32,11 @@ public class LevelManager : MonoBehaviour
     public LevelVisuals visuals { get; private set; }
     public UndoManager undo { get; private set; }
     public ElevatorManager elevators { get; private set; }
+ 	public DebugCollector DebugCollector;
 
     void Awake()
     {
+        DebugCollector = new DebugCollector();
         Instance = this;
         if (Instance != null && Instance != this)
         {
@@ -150,5 +152,26 @@ public class LevelManager : MonoBehaviour
     public void UndoLastMove()
     {
         undo.UndoLastMove();
+
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.RequestSave();
+        }
     }
+
+    public void RemoveBlock(Block block)
+    {
+        loader.RemoveBlock(block);
+    }
+
+    public bool CanPlaceBlockAt(Vector2Int position)
+    {
+        return loader.CanPlaceBlockAt(position);
+    }
+
+    public void PlaceExistingBlock(Vector2Int position, Block block)
+    {
+        loader.PlaceExistingBlock(position, block);
+    }
+
 }

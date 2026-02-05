@@ -5,8 +5,6 @@ using UnityEngine;
 [System.Serializable]
 public class GameSaveData
 {
-    //public InventoryItem inventoryItem; //sean addition
-
     public int currentLevelIndex;
     public Vector2IntSerializable playerPosition;
     public List<BlockSaveData> allBlocks;
@@ -14,13 +12,25 @@ public class GameSaveData
     public List<int> loadedLevelIndices;
     public string saveTimestamp;
 
+    public InventorySaveData inventory;
+
     public GameSaveData()
     {
         allBlocks = new List<BlockSaveData>();
         elevators = new List<ElevatorSaveData>();
         loadedLevelIndices = new List<int>();
+        inventory = new InventorySaveData();
         saveTimestamp = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
     }
+}
+
+[System.Serializable]
+public class InventorySaveData
+{
+    public bool hasItem;
+    public string heldBlockDataName;
+    public BlockData.BlockColor blockColor;
+    public List<BlockData.BlockColor> containedColors;
 }
 
 [System.Serializable]

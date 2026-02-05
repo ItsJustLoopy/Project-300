@@ -148,7 +148,7 @@ public class ElevatorManager
 
         if (SaveManager.Instance != null)
         {
-            SaveManager.Instance.SaveGame();
+            SaveManager.Instance.RequestSave();
         }
     }
 }

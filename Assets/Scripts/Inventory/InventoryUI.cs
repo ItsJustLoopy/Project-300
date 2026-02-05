@@ -3,33 +3,64 @@ using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
-    public InventoryManager inventory;
-    public Image blockIcon;
+    [Header("References (optional, will auto-resolve)")]
+    [SerializeField] private Player player;
+    [SerializeField] private InventoryManager inventory;
+    [SerializeField] private Image blockIcon;
 
-   public void Update()
+    private void Awake()
     {
-        if (inventory.IsEmpty())
+        if (blockIcon == null)
         {
-            blockIcon.enabled = false;
+            blockIcon = GetComponentInChildren<Image>(true);
         }
-        else
+
+        if (player == null)
         {
-            blockIcon.enabled = true;
-            blockIcon.color = inventory.heldBlock.GetColorFromBlockColor(inventory.heldBlock.data.blockColor);
+            player = FindAnyObjectByType<Player>();
+        }
+
+        if (inventory == null && player != null)
+        {
+            inventory = player.inventory;
         }
     }
-    //private Color GetColorFromBlockColor(BlockData.BlockColor blockColor)
-    //{
-    //    switch (blockColor)
-    //    {
-    //        case BlockData.BlockColor.Red: return Color.red;
-    //        case BlockData.BlockColor.Yellow: return Color.yellow;
-    //        case BlockData.BlockColor.Blue: return Color.blue;
-    //        case BlockData.BlockColor.Purple: return Color.blueViolet;
-    //        case BlockData.BlockColor.Orange: return Color.orange;
-    //        case BlockData.BlockColor.Green: return Color.green;
-    //        case BlockData.BlockColor.Black: return Color.black;
-    //        default: return Color.white;
-    //    }
-    //}
+
+    private void OnEnable()
+    {
+        if (inventory != null)
+        {
+            inventory.OnChanged += Refresh;
+        }
+        Refresh();
+    }
+
+    private void OnDisable()
+    {
+        if (inventory != null)
+        {
+            inventory.OnChanged -= Refresh;
+        }
+    }
+
+    private void Refresh()
+    {
+        if (blockIcon == null)
+        {
+            return;
+        }
+
+        if (inventory == null || inventory.IsEmpty())
+        {
+            blockIcon.enabled = false;
+            return;
+        }
+
+        blockIcon.enabled = true;
+
+        if (inventory.TryGetHeldColor(out var c))
+        {
+            blockIcon.color = c;
+        }
+    }
 }

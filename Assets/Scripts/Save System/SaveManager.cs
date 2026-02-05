@@ -10,6 +10,18 @@ public class SaveManager : MonoBehaviour
     private const string SAVE_FILENAME = "gamesave.json";
     private string SavePath => Path.Combine(Application.persistentDataPath, SAVE_FILENAME);
 
+    [Header("Save Settings")]
+    [SerializeField] private float saveDebounceSeconds = 0.25f;
+
+    private static string NormalizeBlockDataName(string name)
+    {
+        if (string.IsNullOrEmpty(name)) return "";
+        return name.Replace("(Clone)", "").Trim();
+    }
+
+    private Coroutine _pendingSaveCoroutine;
+    private float _lastSaveTime = -999f;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -20,6 +32,43 @@ public class SaveManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveGame();
+    }
+
+    private void OnApplicationPause(bool pauseStatus)
+    {
+        if (pauseStatus)
+        {
+            SaveGame();
+        }
+    }
+
+    public void RequestSave()
+    {
+        if (Instance == null) return;
+
+        if (_pendingSaveCoroutine != null)
+        {
+            StopCoroutine(_pendingSaveCoroutine);
+        }
+
+        _pendingSaveCoroutine = StartCoroutine(SaveSoonCoroutine());
+    }
+
+    private System.Collections.IEnumerator SaveSoonCoroutine()
+    {
+        float remaining = saveDebounceSeconds - (Time.unscaledTime - _lastSaveTime);
+        if (remaining > 0f)
+        {
+            yield return new WaitForSecondsRealtime(remaining);
+        }
+
+        _pendingSaveCoroutine = null;
+        SaveGame();
     }
 
     public void SaveGame()
@@ -36,6 +85,7 @@ public class SaveManager : MonoBehaviour
         try
         {
             File.WriteAllText(SavePath, json);
+            _lastSaveTime = Time.unscaledTime;
             Debug.Log($"Game saved successfully to: {SavePath}");
         }
         catch (System.Exception e)
@@ -49,11 +99,43 @@ public class SaveManager : MonoBehaviour
         GameSaveData data = new GameSaveData();
         LevelManager levelManager = LevelManager.Instance;
 
-        // Level info
         data.currentLevelIndex = levelManager.currentLevelIndex;
         data.playerPosition = levelManager._playerInstance.GetComponent<Player>().gridPosition;
 
-        // All blocks in the scene
+        InventoryManager inv = null;
+        if (levelManager._playerInstance != null)
+        {
+            inv = levelManager._playerInstance.GetComponent<InventoryManager>();
+        }
+
+        if (inv != null && inv.HasItem)
+        {
+            var src = inv.HeldRuntime != null ? inv.HeldRuntime : inv.HeldAsset;
+
+            data.inventory.hasItem = true;
+
+            string assetName = inv.HeldAsset != null ? inv.HeldAsset.name : "";
+            string fallbackName = src != null ? src.name : "";
+            data.inventory.heldBlockDataName = NormalizeBlockDataName(!string.IsNullOrEmpty(assetName) ? assetName : fallbackName);
+
+            data.inventory.blockColor = src != null ? src.blockColor : BlockData.BlockColor.White;
+            data.inventory.containedColors = src != null && src.containedColors != null
+                ? new List<BlockData.BlockColor>(src.containedColors)
+                : new List<BlockData.BlockColor>();
+        }
+        else
+        {
+            if (inv == null)
+            {
+                Debug.LogWarning("[SaveManager] Player InventoryManager not found; inventory will not be saved.");
+            }
+
+            data.inventory.hasItem = false;
+            data.inventory.heldBlockDataName = "";
+            data.inventory.containedColors = new List<BlockData.BlockColor>();
+            data.inventory.blockColor = BlockData.BlockColor.White;
+        }
+
         Block[] allBlocks = FindObjectsByType<Block>(FindObjectsSortMode.None);
         foreach (Block block in allBlocks)
         {
@@ -63,13 +145,13 @@ public class SaveManager : MonoBehaviour
             {
                 gridPosition = block.gridPosition,
                 blockColor = sourceData.blockColor,
-                containedColors = new List<BlockData.BlockColor>(sourceData.containedColors ?? new List<BlockData.BlockColor>()),
+                containedColors = new System.Collections.Generic.List<BlockData.BlockColor>(sourceData.containedColors ?? new System.Collections.Generic.List<BlockData.BlockColor>()),
                 levelIndex = block.levelIndex,
                 originLevelIndex = block.originLevelIndex,
                 isAtOriginLevel = block.isAtOriginLevel,
                 isInHole = block._isInHole,
-                // store original asset name so we can find the asset to instantiate on load
-                blockDataName = block.data != null ? block.data.name : (block.runtimeData != null ? block.runtimeData.name : "")
+                
+                blockDataName = NormalizeBlockDataName(block.data != null ? block.data.name : (block.runtimeData != null ? block.runtimeData.name : ""))
             };
             data.allBlocks.Add(blockData);
         }
@@ -153,10 +235,55 @@ public class SaveManager : MonoBehaviour
         RestoreBlocks(saveData.allBlocks);
         RestorePlayer(saveData.playerPosition);
         RestoreElevators(saveData.elevators);
+        RestoreInventory(saveData.inventory);
+
         levelManager.visuals.PositionCameraForLevel(saveData.currentLevelIndex);
-        
+
         levelManager.UpdateLevelOpacities();
         levelManager.UpdateGroundTilesForCurrentLevel();
+    }
+
+    private void RestoreInventory(InventorySaveData invData)
+    {
+        if (invData == null || !invData.hasItem)
+            return;
+
+        LevelManager levelManager = LevelManager.Instance;
+        if (levelManager == null || levelManager._playerInstance == null)
+        {
+            Debug.LogWarning("[SaveManager] Cannot restore inventory: player instance not spawned yet.");
+            return;
+        }
+
+        InventoryManager inventory = levelManager._playerInstance.GetComponent<InventoryManager>();
+        if (inventory == null)
+        {
+            Debug.LogWarning("[SaveManager] Cannot restore inventory: InventoryManager component missing on player prefab.");
+            return;
+        }
+
+        string normalized = NormalizeBlockDataName(invData.heldBlockDataName);
+        BlockData asset = FindBlockDataByName(normalized);
+        if (asset == null)
+        {
+            Debug.LogWarning($"[SaveManager] Could not restore inventory: BlockData not found: '{normalized}' (saved as '{invData.heldBlockDataName}')");
+            return;
+        }
+
+        BlockData runtime = Instantiate(asset);
+        runtime.blockColor = invData.blockColor;
+        runtime.containedColors = invData.containedColors != null
+            ? new List<BlockData.BlockColor>(invData.containedColors)
+            : new List<BlockData.BlockColor>();
+
+        inventory.SetHeldFromSave(asset, runtime);
+
+
+        Player player = levelManager._playerInstance.GetComponent<Player>();
+        if (player != null)
+        {
+            player.inventory = inventory;
+        }
     }
 
     private static void ClearCurrentGameState()
@@ -351,5 +478,4 @@ public class SaveManager : MonoBehaviour
     {
         Debug.Log($"Save file location: {SavePath}");
     }
-    
 }

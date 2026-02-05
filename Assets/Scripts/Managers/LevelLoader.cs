@@ -141,6 +141,7 @@ public class LevelLoader
         Debug.Log($"Unloading level {levelIndex}");
 
         LevelObjects levelObjects = _loadedLevels[levelIndex];
+
         foreach (GameObject tile in levelObjects.tiles)
         {
             if (tile != null)
@@ -160,6 +161,8 @@ public class LevelLoader
                 }
             }
         }
+
+        levelObjects.blocks.Clear();
 
         _loadedLevels.Remove(levelIndex);
     }
@@ -236,8 +239,7 @@ public class LevelLoader
                 GroundTile tile = _groundTiles[x, y];
                 if (tile != null)
                 {
-                    tile.occupant = null;
-                    tile.isOccupied = false;
+                    tile.ClearOccupant();
                 }
             }
         }
@@ -250,11 +252,43 @@ public class LevelLoader
                 GroundTile tile = GetTileAt(block.gridPosition);
                 if (tile != null)
                 {
-                    tile.occupant = block;
-                    tile.isOccupied = true;
+                    tile.SetOccupant(block);
                 }
             }
         }
+    }
+
+    public bool CanPlaceBlockAt(Vector2Int position)
+    {
+        if (CheckOutOfBounds(position))
+            return false;
+
+        GroundTile tile = GetTileAt(position);
+        if (tile == null)
+            return false;
+
+        return !tile.isOccupied;
+    }
+
+
+    public void PlaceExistingBlock(Vector2Int position, Block block)
+    {
+        if (block == null) return;
+
+        if (CheckOutOfBounds(position))
+            return;
+
+        GroundTile tile = GetTileAt(position);
+        if (tile == null || tile.isOccupied)
+            return;
+
+        float yOffset = _levelManager.currentLevelIndex * _levelManager.verticalSpacing;
+        block.transform.position = new Vector3(position.x, yOffset + 1f, position.y);
+
+        block.levelIndex = _levelManager.currentLevelIndex;
+        block.gridPosition = position;
+
+        tile.SetOccupant(block);
     }
 
     public void SpawnPlayer()
@@ -323,6 +357,30 @@ public class LevelLoader
         {
             levelObjects.blocks.Add(blockObj);
         }
+    }
+
+    public void UnregisterBlockInstance(int levelIndex, GameObject blockObj)
+    {
+        if (blockObj == null) return;
+
+        if (_loadedLevels.TryGetValue(levelIndex, out var levelObjects) && levelObjects.blocks != null)
+        {
+            levelObjects.blocks.Remove(blockObj);
+        }
+    }
+
+    public void RemoveBlock(Block block)
+    {
+        if (block == null) return;
+
+        GroundTile tile = GetTileAt(block.gridPosition);
+        if (tile != null)
+        {
+            tile.ClearOccupant();
+        }
+
+        UnregisterBlockInstance(block.levelIndex, block.gameObject);
+        Object.Destroy(block.gameObject);
     }
 
     public void ClearLoadedLevels()

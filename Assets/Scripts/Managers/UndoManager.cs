@@ -147,6 +147,9 @@ public class UndoManager
                 {
                     continue;
                 }
+
+                _levelManager.loader.RegisterBlockInstance(snap.levelIndex, blockObj);
+
                 block.skipStartInit = true;
                 block.blockId = snap.blockId;
                 block.data = snap.data;
@@ -197,9 +200,11 @@ public class UndoManager
             if (block == null) continue;
             if (!snapshotIds.Contains(block.blockId))
             {
+                _levelManager.loader.UnregisterBlockInstance(block.levelIndex, block.gameObject);
                 Object.Destroy(block.gameObject);
             }
         }
+
         if (snapshotIds.Count > 0)
         {
             int maxId = 0;

@@ -5,6 +5,8 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
+    public bool CanBePickedUp => !_isInHole && !isMoving;
+    
     public int blockId = 0;
     public bool canBePlacedInHole = true;
     public BlockData data; // don't mutate this please
@@ -272,7 +274,7 @@ public class Block : MonoBehaviour
         }
     }
 
-    private Color GetColorFromBlockColor(BlockData.BlockColor blockColor)
+    public Color GetColorFromBlockColor(BlockData.BlockColor blockColor)
     {
         switch (blockColor)
         {

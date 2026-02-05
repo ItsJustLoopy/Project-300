@@ -14,5 +14,17 @@ public class GroundTile : MonoBehaviour
         gridPosition = gridPos;
         isOccupied = false;
         name = $"Tile_({gridPosition.x},{gridPosition.y})";
-    }  
+    }
+
+    public void ClearOccupant()
+    {
+        isOccupied = false;
+        occupant = null;
+    }
+
+    public void SetOccupant(Block block)
+    {
+        occupant = block;
+        isOccupied = block != null;
+    }
 }
