@@ -36,11 +36,12 @@ public class InventoryManager : MonoBehaviour
         }
 
         heldAsset = block.data;             
-        heldRuntime = Instantiate(source);   
+        heldRuntime = Instantiate(source);
 
-        Destroy(block.gameObject);
 
         OnChanged?.Invoke();
+        Destroy(block.gameObject);
+
     }
 
     public bool TryTake(out BlockData asset, out BlockData runtimeSnapshot)
@@ -69,16 +70,17 @@ public class InventoryManager : MonoBehaviour
         OnChanged?.Invoke();
     }
 
-    public bool TryGetHeldColor(out Color color)
+    public Color TryGetHeldColor()
     {
-        color = default;
-        if (heldRuntime == null && heldAsset == null) return false;
+        var defaultcolor = Color.white;
+       
+        if (heldRuntime == null && heldAsset == null) return defaultcolor;
 
         var src = heldRuntime != null ? heldRuntime : heldAsset;
-        if (src == null) return false;
+        if (src == null) return defaultcolor;
 
-        color = GetColorFromBlockColor(src.blockColor);
-        return true;
+        var color = GetColorFromBlockColor(src.blockColor);
+        return color;
     }
 
     private static Color GetColorFromBlockColor(BlockData.BlockColor blockColor)

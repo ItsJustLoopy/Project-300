@@ -1,26 +1,12 @@
 --New Session-- 
-[00:44:05] [Log] Generating level 0
-[00:44:05] [Log] Game loaded successfully from: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:05] [Log] Game loaded from save file
-[00:44:05] [Log] Background music started
-[00:44:14] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:15] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:17] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:19] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:31] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:32] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:34] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:36] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:37] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:38] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:40] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:41] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:45] [Log] Registered elevator at (1, 5) on level 0
-[00:44:45] [Log] Generating level 1
-[00:44:45] [Log] Block placed in hole, it now acts as an elevator.
-[00:44:47] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:52] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:55] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:44:58] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:45:00] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[00:45:02] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
+[13:42:38] [Log] Generating level 0
+[13:42:38] [Log] Game loaded successfully from: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[13:42:38] [Log] Game loaded from save file
+[13:42:39] [Log] refreshing
+[13:42:39] [Log] trying to get the color RGBA(1.000, 1.000, 1.000, 1.000)
+[13:42:39] [Log] Background music started
+[13:42:41] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[13:42:42] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[13:42:43] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[13:42:45] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[13:42:54] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
