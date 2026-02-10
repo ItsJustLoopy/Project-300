@@ -7,7 +7,7 @@ public class InventoryManager : MonoBehaviour
     [NonSerialized] private BlockData heldRuntime;
 
     public event Action OnChanged;
-
+    //fhohfouweheofhworhjifohioihf
     public bool IsEmpty()
     {
         return heldRuntime == null && heldAsset == null;
