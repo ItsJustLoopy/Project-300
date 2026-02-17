@@ -1,12 +1,12 @@
 --New Session-- 
-[13:42:38] [Log] Generating level 0
-[13:42:38] [Log] Game loaded successfully from: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
-[13:42:38] [Log] Game loaded from save file
-[13:42:39] [Log] refreshing
-[13:42:39] [Log] trying to get the color RGBA(1.000, 1.000, 1.000, 1.000)
-[13:42:39] [Log] Background music started
-[13:42:41] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
-[13:42:42] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
-[13:42:43] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
-[13:42:45] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
-[13:42:54] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[11:00:29] [Log] Generating level 0
+[11:00:29] [Log] Game loaded successfully from: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[11:00:29] [Log] Game loaded from save file
+[11:00:30] [Log] refreshing
+[11:00:30] [Log] trying to get the color RGBA(1.000, 1.000, 1.000, 1.000)
+[11:00:30] [Log] Background music started
+[11:01:06] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[11:01:16] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[11:01:17] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[11:01:27] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[11:01:41] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
