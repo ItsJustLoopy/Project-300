@@ -23,6 +23,8 @@ public class Player : MonoBehaviour
         {
             inventory = GetComponent<InventoryManager>();
         }
+
+        InventoryUI.Instance.AssignPlayer(this);
     }
 
     private void Start()
