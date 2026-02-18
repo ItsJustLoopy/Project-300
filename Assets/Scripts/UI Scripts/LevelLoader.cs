@@ -308,6 +308,10 @@ public class LevelLoader
 
         _levelManager._playerInstance = Object.Instantiate(_levelManager.playerPrefab, spawnPosition, Quaternion.identity);
         _levelManager._playerScript = _levelManager._playerInstance.GetComponent<Player>();
+
+        //InventoryUI.Instance.Assignment(_levelManager._playerScript);
+
+        Debug.Log("meow 3");
     }
 
     public bool CheckOutOfBounds(Vector2Int position)
