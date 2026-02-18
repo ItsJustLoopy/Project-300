@@ -63,6 +63,13 @@ public class Block : MonoBehaviour
         }
         EnsureRuntimeDataExists();
 
+        if (runtimeData == null && data == null)
+        {
+            Debug.LogError($"[Block] Start called with both data and runtimeData null on '{name}'. This block cannot initialize and will be disabled.", this);
+            enabled = false;
+            return;
+        }
+
         if (runtimeData != null)
         {
             _gridMover.gridPosition = new Vector2Int((int)runtimeData.BlockPosition.x, (int)runtimeData.BlockPosition.z);
@@ -201,11 +208,16 @@ public class Block : MonoBehaviour
 
     public void CombineWith(Block otherBlock)
     {
+        if (otherBlock == null)
+        {
+            return;
+        }
+
         if (IsImmovable)
         {
             return;
         }
-        if (otherBlock != null && otherBlock.IsImmovable)
+        if (otherBlock.IsImmovable)
         {
             return;
         }
@@ -227,6 +239,13 @@ public class Block : MonoBehaviour
         {
             runtimeData.blockColor = DetermineColorFromPrimaries(_containedPrimaryColors);
             runtimeData.containedColors = new List<BlockData.BlockColor>(_containedPrimaryColors);
+        }
+
+        if (data == null)
+        {
+            data = otherBlock.data != null
+                ? otherBlock.data
+                : (runtimeData != null ? runtimeData : otherBlock.runtimeData);
         }
 
         UpdateBlockAppearance();
@@ -268,6 +287,13 @@ public class Block : MonoBehaviour
                 return;
             }
 
+            if (runtimeData == null && data == null)
+            {
+                Debug.LogError($"[Block] UpdateBlockAppearance called with both data and runtimeData null on '{name}'.", this);
+                renderer.material.color = Color.white;
+                return;
+            }
+
             var colorSource = runtimeData != null ? runtimeData.blockColor : data.blockColor;
             Color visualColor = _isInHole ? Color.lightSlateGray : GetColorFromBlockColor(colorSource);
             renderer.material.color = visualColor;
@@ -294,6 +320,13 @@ public class Block : MonoBehaviour
     {
         if (IsImmovable)
         {
+            canBePlacedInHole = false;
+            return;
+        }
+
+        if (runtimeData == null && data == null)
+        {
+            Debug.LogError($"[Block] UpdateElevatorStatus called with both data and runtimeData null on '{name}'.", this);
             canBePlacedInHole = false;
             return;
         }

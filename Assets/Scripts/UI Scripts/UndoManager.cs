@@ -75,7 +75,7 @@ public class UndoManager
             {
                 blockId = block.blockId,
                 blockRef = block,
-                data = block.data,
+                data = block.data != null ? block.data : block.runtimeData,
                 blockColor = sourceData != null ? sourceData.blockColor : BlockData.BlockColor.Red,
                 containedColors = containedColors,
                 worldPosition = block.transform.position,

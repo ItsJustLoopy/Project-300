@@ -1,12 +1,9 @@
 --New Session-- 
-[11:00:29] [Log] Generating level 0
-[11:00:29] [Log] Game loaded successfully from: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
-[11:00:29] [Log] Game loaded from save file
-[11:00:30] [Log] refreshing
-[11:00:30] [Log] trying to get the color RGBA(1.000, 1.000, 1.000, 1.000)
-[11:00:30] [Log] Background music started
-[11:01:06] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
-[11:01:16] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
-[11:01:17] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
-[11:01:27] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
-[11:01:41] [Log] Game saved successfully to: C:/Users/abysm/AppData/LocalLow/DefaultCompany/Project 300\gamesave.json
+[16:43:04] [Log] Generating level 1
+[16:43:04] [Log] Generating level 0
+[16:43:04] [Log] Game loaded successfully from: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
+[16:43:04] [Log] Game loaded from save file
+[16:43:05] [Log] refreshing
+[16:43:05] [Log] trying to get the color RGBA(1.000, 1.000, 1.000, 1.000)
+[16:43:05] [Log] Background music started
+[16:43:15] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
