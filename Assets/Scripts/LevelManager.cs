@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -70,6 +71,8 @@ public class LevelManager : MonoBehaviour
         _currentLevelData = levelDatas[currentLevelIndex];
 
         SpawnPlayer();
+        Debug.Log("meow 2");
+      
 
         UpdateLevelOpacities();
     }
@@ -102,6 +105,10 @@ public class LevelManager : MonoBehaviour
     public void SpawnPlayer()
     {
         loader.SpawnPlayer();
+
+        //InventoryUI.Instance.Assignment(_playerScript);
+
+        Debug.Log("meow");
     }
 
     public bool CheckOutOfBounds(Vector2Int position)
