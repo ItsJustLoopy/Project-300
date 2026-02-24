@@ -71,6 +71,7 @@ public class LevelManager : MonoBehaviour
         _currentLevelData = levelDatas[currentLevelIndex];
 
         SpawnPlayer();
+        Debug.Log("meow 2");
       
 
         UpdateLevelOpacities();

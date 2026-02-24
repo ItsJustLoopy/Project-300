@@ -45,6 +45,10 @@ public class PlayerInventoryActions : MonoBehaviour
         if (_inventory.IsEmpty())
             return;
 
+        BlockData heldSource = _inventory.HeldRuntime != null ? _inventory.HeldRuntime : _inventory.HeldAsset;
+        if (heldSource != null && heldSource.isImmovable)
+            return;
+
         Vector2Int targetPos = _player.gridPosition + _player.facingDirection;
         if (!LevelManager.Instance.CanPlaceBlockAt(targetPos))
             return;

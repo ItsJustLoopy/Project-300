@@ -7,7 +7,7 @@ public class InventoryManager : MonoBehaviour
     [NonSerialized] private BlockData heldRuntime;
 
     public event Action OnChanged;
-    //fhohfouweheofhworhjifohioihf
+
     public bool IsEmpty()
     {
         return heldRuntime == null && heldAsset == null;
@@ -35,7 +35,13 @@ public class InventoryManager : MonoBehaviour
             return;
         }
 
-        heldAsset = block.data;             
+        heldAsset = block.data;
+        if (heldAsset == null)
+        {
+            string normalized = BlockDataUtils.NormalizeBlockDataName(source.name);
+            heldAsset = BlockDataUtils.FindBlockDataByName(normalized);
+        }
+
         heldRuntime = Instantiate(source);
 
 
@@ -54,6 +60,13 @@ public class InventoryManager : MonoBehaviour
         }
 
         asset = heldAsset;
+        if (asset == null && heldRuntime != null)
+        {
+            string normalized = BlockDataUtils.NormalizeBlockDataName(heldRuntime.name);
+            asset = BlockDataUtils.FindBlockDataByName(normalized);
+            heldAsset = asset;
+        }
+
         runtimeSnapshot = heldRuntime != null ? Instantiate(heldRuntime) : (heldAsset != null ? Instantiate(heldAsset) : null);
 
         heldAsset = null;
@@ -79,24 +92,8 @@ public class InventoryManager : MonoBehaviour
         var src = heldRuntime != null ? heldRuntime : heldAsset;
         if (src == null) return defaultcolor;
 
-        var color = GetColorFromBlockColor(src.blockColor);
+        var color = BlockDataUtils.GetColorFromBlockColor(src.blockColor);
         return color;
-    }
-
-    private static Color GetColorFromBlockColor(BlockData.BlockColor blockColor)
-    {
-        switch (blockColor)
-        {
-            case BlockData.BlockColor.White: return Color.white;
-            case BlockData.BlockColor.Red: return Color.red;
-            case BlockData.BlockColor.Yellow: return Color.yellow;
-            case BlockData.BlockColor.Blue: return Color.blue;
-            case BlockData.BlockColor.Purple: return Color.blueViolet;
-            case BlockData.BlockColor.Orange: return Color.orange;
-            case BlockData.BlockColor.Green: return Color.green;
-            case BlockData.BlockColor.Black: return Color.black;
-            default: return Color.white;
-        }
     }
 
     public void SetHeldFromSave(BlockData asset, BlockData runtimeSnapshot)

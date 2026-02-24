@@ -1,4 +1,5 @@
 --New Session-- 
+<<<<<<< HEAD
 [16:43:04] [Log] Generating level 1
 [16:43:04] [Log] Generating level 0
 [16:43:04] [Log] Game loaded successfully from: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
@@ -7,3 +8,11 @@
 [16:43:05] [Log] trying to get the color RGBA(1.000, 1.000, 1.000, 1.000)
 [16:43:05] [Log] Background music started
 [16:43:15] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
+=======
+[16:28:06] [Log] Generating level 0
+[16:28:06] [Log] Generating level 1
+[16:28:06] [Log] Game loaded successfully from: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
+[16:28:06] [Log] Game loaded from save file
+[16:28:06] [Log] Background music started
+[16:28:09] [Log] Undo performed
+>>>>>>> 260fec2 (refactor and bug fixes)

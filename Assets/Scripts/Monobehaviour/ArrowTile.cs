@@ -51,7 +51,7 @@ public class ArrowTile : MonoBehaviour
         {
             return;
         }
-        arrowRenderer.material.color = GetColorFromBlockColor(arrowColor);
+        arrowRenderer.material.color = BlockDataUtils.GetColorFromBlockColor(arrowColor);
     }
 
     public void Initialize(ArrowDirection newDirection, BlockData.BlockColor newColor, GameObject arrowPrefab, float yOffset)
@@ -96,19 +96,4 @@ public class ArrowTile : MonoBehaviour
         }
     }
 
-    private Color GetColorFromBlockColor(BlockData.BlockColor blockColor)
-    {
-        switch (blockColor)
-        {
-            case BlockData.BlockColor.White: return Color.white;
-            case BlockData.BlockColor.Red: return Color.red;
-            case BlockData.BlockColor.Yellow: return Color.yellow;
-            case BlockData.BlockColor.Blue: return Color.blue;
-            case BlockData.BlockColor.Purple: return Color.blueViolet;
-            case BlockData.BlockColor.Orange: return Color.orange;
-            case BlockData.BlockColor.Green: return Color.green;
-            case BlockData.BlockColor.Black: return Color.black;
-            default: return Color.white;
-        }
-    }
 }
