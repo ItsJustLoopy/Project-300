@@ -153,8 +153,16 @@ public class LevelEditorWindow : EditorWindow
         }
         else if (HasBlockAt(pos, out BlockData blockData))
         {
-            color = GetBlockDisplayColor(blockData.blockColor);
-            label = blockData.blockColor.ToString();
+            if (blockData != null && blockData.isImmovable)
+            {
+                color = Color.gray;
+                label = "Wall";
+            }
+            else
+            {
+                color = GetBlockDisplayColor(blockData.blockColor);
+                label = blockData.blockColor.ToString();
+            }
         }
         else if (HasArrowAt(pos, out LevelData.ArrowData arrowData))
         {

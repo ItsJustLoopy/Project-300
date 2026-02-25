@@ -14,6 +14,29 @@ public class ScreenDictionary: SerializableDictionaryBase<string, GameObject>
 public class ScreenManager : Singleton<ScreenManager>
 {
     [Space(10)]
+    [Header("Background")]
+    [SerializeField]
+    private bool useShaderBackground = true;
+
+    [SerializeField]
+    private Camera menuCamera;
+
+    [SerializeField, Range(0.1f, 5f)]
+    private float menuShaderSpeed = 0.9f;
+
+    [SerializeField, Range(0.1f, 2f)]
+    private float menuShaderIntensity = 0.9f;
+
+    [SerializeField, Range(20f, 200f)]
+    private float menuShaderScale = 90f;
+
+    [SerializeField, Range(1f, 20f)]
+    private float menuBackgroundDistance = 5f;
+
+    [SerializeField, Range(1f, 1.5f)]
+    private float menuBackgroundFill = 1.05f;
+
+    [Space(10)]
     [Header("Screens")]
     [SerializeField]
     private string StartingScreen;
@@ -26,6 +49,18 @@ public class ScreenManager : Singleton<ScreenManager>
 
     private void Start()
     {
+        if (useShaderBackground)
+        {
+            Camera targetCamera = menuCamera != null ? menuCamera : Camera.main;
+            BackgroundGenerator.CreateMenuBackground(
+                targetCamera,
+                menuShaderSpeed,
+                menuShaderIntensity,
+                menuShaderScale,
+                menuBackgroundDistance,
+                menuBackgroundFill);
+        }
+
         DisableAllScreens();
         ShowScreen(StartingScreen);
     }

@@ -71,6 +71,14 @@ public class PlayerMovementController : MonoBehaviour
 
     public void Move(Vector2Int gridPos)
     {
+        Vector2Int moveDirection = gridPos - _player.gridPosition;
+
+        if (moveDirection != Vector2Int.zero)
+        {
+            float yaw = GetYawForDirection(moveDirection);
+            transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+        }
+
         float levelY = LevelManager.Instance.currentLevelIndex * LevelManager.Instance.verticalSpacing + 1f;
         _player._gridMover.MoveToGrid(gridPos, levelY);
 
@@ -86,5 +94,14 @@ public class PlayerMovementController : MonoBehaviour
             return false;
 
         return LevelManager.Instance.IsElevatorAt(position);
+    }
+
+    private static float GetYawForDirection(Vector2Int direction)
+    {
+        if (direction == Vector2Int.up) return 0f;
+        if (direction == Vector2Int.right) return 90f;
+        if (direction == Vector2Int.down) return 180f;
+        if (direction == Vector2Int.left) return 270f;
+        return 0f;
     }
 }

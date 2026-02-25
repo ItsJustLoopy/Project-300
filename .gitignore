@@ -74,3 +74,10 @@ crashlytics-build.properties
 *.blob
 .idea/*
 .plastic/*
+
+# Oversized textures kept local only - sami
+/Assets/Textures/Metal027_8K-PNG/PlayerDisplacement.png
+/Assets/Textures/Metal027_8K-PNG/PlayerNormal.png
+/Assets/Textures/MetalPlates004_8K-PNG/MetalPlates004_8K-PNG_NormalDX.png
+/Assets/Textures/PavingStones063_8K-PNG/PavingStones063_8K-PNG_NormalDX.png
+/Assets/Textures/PavingStones063_8K-PNG/PavingStones063_8K-PNG_NormalGL.png

@@ -17,6 +17,7 @@ public class PlayerInputRouter : MonoBehaviour
     private InputAction _pickupAction;
     private InputAction _placeAction;
     private InputAction _undoAction;
+    private InputAction _resetAction;
 
     private void Awake()
     {
@@ -34,6 +35,7 @@ public class PlayerInputRouter : MonoBehaviour
             _pickupAction = _playerInput.actions["Pickup"];
             _placeAction = _playerInput.actions["Place"];
             _undoAction = _playerInput.actions["Undo"];
+            _resetAction = _playerInput.actions["Reset"];
         }
     }
 
@@ -64,12 +66,18 @@ public class PlayerInputRouter : MonoBehaviour
             LevelManager.Instance.UndoLastMove();
         }
 
-        if (_pickupAction != null && _pickupAction.triggered)
+        if (!_player.isMoving && _resetAction != null && _resetAction.triggered)
+        {
+            LevelManager.Instance.ResetCurrentLevel();
+            return;
+        }
+
+        if (_pickupAction != null && _pickupAction.triggered && LevelManager.Instance != null && LevelManager.Instance.IsInventoryUnlocked())
         {
             inventory?.TryPickup();
         }
 
-        if (_placeAction != null && _placeAction.triggered)
+        if (_placeAction != null && _placeAction.triggered && LevelManager.Instance != null && LevelManager.Instance.IsInventoryUnlocked())
         {
             inventory?.TryPlace();
         }

@@ -16,6 +16,9 @@ public class PlayerInventoryActions : MonoBehaviour
 
     public void TryPickup()
     {
+        if (LevelManager.Instance == null || !LevelManager.Instance.IsInventoryUnlocked())
+            return;
+
         if (_inventory.IsEmpty() == false)
             return;
 
@@ -27,6 +30,8 @@ public class PlayerInventoryActions : MonoBehaviour
         Block block = tile.occupant;
         if (block == null || !block.CanBePickedUp)
             return;
+
+        LevelManager.Instance.RecordSnapshot();
         
         tile.ClearOccupant();
 
@@ -42,6 +47,9 @@ public class PlayerInventoryActions : MonoBehaviour
 
     public void TryPlace()
     {
+        if (LevelManager.Instance == null || !LevelManager.Instance.IsInventoryUnlocked())
+            return;
+
         if (_inventory.IsEmpty())
             return;
 
@@ -52,6 +60,8 @@ public class PlayerInventoryActions : MonoBehaviour
         Vector2Int targetPos = _player.gridPosition + _player.facingDirection;
         if (!LevelManager.Instance.CanPlaceBlockAt(targetPos))
             return;
+
+        LevelManager.Instance.RecordSnapshot();
 
         if (!_inventory.TryTake(out var asset, out var runtimeSnapshot))
             return;
