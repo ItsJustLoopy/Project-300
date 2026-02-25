@@ -146,7 +146,7 @@ Light:
   m_GameObject: {fileID: 422460361}
   m_Enabled: 1
   serializedVersion: 11
-  m_Type: 1
+  m_Type: 0
   m_Color: {r: 0.98490566, g: 0.8820755, b: 1, a: 1}
   m_Intensity: 1
   m_Range: 10
@@ -887,7 +887,7 @@ Camera:
     height: 1
   near clip plane: 0.3
   far clip plane: 1000
-  field of view: 60
+  field of view: 33
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -1090,6 +1090,10 @@ PrefabInstance:
       propertyPath: m_AdditionalShaderChannelsFlag
       value: 25
       objectReference: {fileID: 0}
+    - target: {fileID: 9002622998525013233, guid: 5bbdfb4efbd927b409b2c924941b972a, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -1241,8 +1245,44 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 11400000, guid: d79830a4ab8d1d976b32eb61eb1dad24, type: 2}
     - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: gameShaderTintA.b
+      value: 0.9150943
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: gameShaderTintA.g
+      value: 0.5662624
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: gameShaderTintA.r
+      value: 0.31510323
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: gameShaderTintB.b
+      value: 0.7169812
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: gameShaderTintB.g
+      value: 0.33481666
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: gameShaderTintB.r
+      value: 0.64749676
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: fadeTransitionSpeed
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: inactiveLevelOpacity
+      value: 0.001
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: inventoryUnlockLevel
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
       propertyPath: levelDatas.Array.size
-      value: 2
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
       propertyPath: 'levelDatas.Array.data[0]'
@@ -1255,7 +1295,27 @@ PrefabInstance:
     - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
       propertyPath: 'levelDatas.Array.data[2]'
       value: 
-      objectReference: {fileID: 11400000, guid: d79830a4ab8d1d976b32eb61eb1dad24, type: 2}
+      objectReference: {fileID: 11400000, guid: 7b3281905b6a6f1548176492ffe84a69, type: 2}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: 'levelDatas.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 220c83f474a5c5fa0b95bbe09229cd1a, type: 2}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: 'levelDatas.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b8b9d68b8fed01c10a24dec3afc8c997, type: 2}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: 'levelDatas.Array.data[5]'
+      value: 
+      objectReference: {fileID: 11400000, guid: ed668c05693165583a09c59379ab4e29, type: 2}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: 'levelDatas.Array.data[6]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 31475dbd3d12e8f54b410a8b2d75c5c8, type: 2}
+    - target: {fileID: 5574225103151503787, guid: 01b6d76ec1bf6ed7f9d6be2ba201686b, type: 3}
+      propertyPath: 'levelDatas.Array.data[7]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 4a81dbc6454657ba2ad8d85a5ba6d3ff, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

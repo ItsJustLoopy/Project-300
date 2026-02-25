@@ -1,9 +1,12 @@
 --New Session-- 
-[16:43:04] [Log] Generating level 1
-[16:43:04] [Log] Generating level 0
-[16:43:04] [Log] Game loaded successfully from: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[16:43:04] [Log] Game loaded from save file
-[16:43:05] [Log] refreshing
-[16:43:05] [Log] trying to get the color RGBA(1.000, 1.000, 1.000, 1.000)
-[16:43:05] [Log] Background music started
-[16:43:15] [Log] Game saved successfully to: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
+[04:47:12] [Log] Generating level 0
+[04:47:12] [Log] Game loaded successfully from: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
+[04:47:12] [Log] Game loaded from save file
+[04:47:12] [Log] Background music started
+[04:47:15] [Log] Registered elevator at (1, 5) on level 0
+[04:47:15] [Log] Block placed in hole, it now acts as an elevator.
+[04:47:16] [Log] Generating level 1
+[04:47:29] [Log] Registered elevator at (6, 6) on level 1
+[04:47:29] [Log] Block placed in hole, it now acts as an elevator.
+[04:47:30] [Log] Generating level 2
+[04:47:31] [Log] Unloading level 0

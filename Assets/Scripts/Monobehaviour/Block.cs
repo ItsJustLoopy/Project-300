@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class Block : MonoBehaviour
 {
-    public bool CanBePickedUp => !_isInHole && !isMoving;
+    public bool CanBePickedUp => !_isInHole && !isMoving && !IsImmovable;
     
     public int blockId = 0;
     public bool canBePlacedInHole = true;
@@ -295,24 +295,8 @@ public class Block : MonoBehaviour
             }
 
             var colorSource = runtimeData != null ? runtimeData.blockColor : data.blockColor;
-            Color visualColor = _isInHole ? Color.lightSlateGray : GetColorFromBlockColor(colorSource);
+            Color visualColor = _isInHole ? Color.lightSlateGray : BlockDataUtils.GetColorFromBlockColor(colorSource);
             renderer.material.color = visualColor;
-        }
-    }
-
-    public Color GetColorFromBlockColor(BlockData.BlockColor blockColor)
-    {
-        switch (blockColor)
-        {
-            case BlockData.BlockColor.White: return Color.white;
-            case BlockData.BlockColor.Red: return Color.red;
-            case BlockData.BlockColor.Yellow: return Color.yellow;
-            case BlockData.BlockColor.Blue: return Color.blue;
-            case BlockData.BlockColor.Purple: return Color.blueViolet;
-            case BlockData.BlockColor.Orange: return Color.orange;
-            case BlockData.BlockColor.Green: return Color.green;
-            case BlockData.BlockColor.Black: return Color.black;
-            default: return Color.white;
         }
     }
 

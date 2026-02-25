@@ -1,34 +1,27 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
-    [Header("References (optional, will auto-resolve)")]
-     public Player player;
+    [Header("References")]
+    public Player player;
     [SerializeField] private InventoryManager inventory;
-    [SerializeField] public Image blockIcon;
+    [SerializeField] private GameObject blockIconObject;
+    [SerializeField] private Image blockIcon;
     public static InventoryUI Instance;
+
     private void Awake()
     {
         Instance = this;
+        ResolveBlockIcon();
 
-        //if (blockIcon == null)
-        //{
-        //    blockIcon = GetComponentInChildren<Image>(true);
-        //}
+        ResolvePlayerAndInventory();
 
-        if (player == null)
+        if (inventory != null)
         {
-            player = FindAnyObjectByType<Player>();
+            inventory.OnChanged -= Refresh;
+            inventory.OnChanged += Refresh;
         }
-
-        if (inventory == null && player != null)
-        {
-            inventory = player.inventory;
-        }
-
-
     }
 
     private void Start()
@@ -39,12 +32,15 @@ public class InventoryUI : MonoBehaviour
 
     private void OnEnable()
     {
+        ResolvePlayerAndInventory();
+
         if (inventory != null)
         {
+            inventory.OnChanged -= Refresh;
             inventory.OnChanged += Refresh;
-            Debug.Log("subscribed to onchanged");
         }
-        
+
+        Refresh();
     }
 
     private void OnDisable()
@@ -57,48 +53,94 @@ public class InventoryUI : MonoBehaviour
 
     private void Refresh()
     {
-        Debug.Log("refreshing");
+        ResolveBlockIcon();
+
         if (blockIcon == null)
         {
-            Debug.Log("block icon not found");
+            Debug.LogWarning("InventoryUI: assign either blockIcon (Image) or blockIconObject (GameObject with Image).", this);
             return;
         }
 
         if (inventory == null)
         {
-            Debug.Log("inventory is null");
-
             blockIcon.enabled = false;
             return;
         }
 
-        blockIcon.enabled = true;
+        bool hasItem = inventory.HasItem;
+        blockIcon.enabled = hasItem;
+        if (!hasItem)
+        {
+            return;
+        }
 
         var c = inventory.TryGetHeldColor();
-
-        Debug.Log($"trying to get the color {c}");
-
         blockIcon.color = c;
+    }
+
+    private void ResolveBlockIcon()
+    {
+        if (blockIcon == null && blockIconObject != null)
+        {
+            blockIcon = blockIconObject.GetComponent<Image>();
+        }
+    }
+
+    private void ResolvePlayerAndInventory()
+    {
+        if (player == null)
+        {
+            player = FindAnyObjectByType<Player>();
+        }
+
+        InventoryManager nextInventory = ResolveInventoryFromPlayer(player);
+        if (!ReferenceEquals(inventory, nextInventory))
+        {
+            if (inventory != null)
+            {
+                inventory.OnChanged -= Refresh;
+            }
+
+            inventory = nextInventory;
+        }
+    }
+
+    private InventoryManager ResolveInventoryFromPlayer(Player targetPlayer)
+    {
+        if (targetPlayer == null)
+            return null;
+
+        if (targetPlayer.inventory != null)
+            return targetPlayer.inventory;
+
+        return targetPlayer.GetComponent<InventoryManager>();
     }
 
 
     public void AssignPlayer(Player p)
     {
         player = p;
-        
-        //if (blockIcon == null)
-        //{
-        //    blockIcon = GetComponentInChildren<Image>(true);
-        //}
 
-        //if (player == null)
-        //{
-        //    player = FindAnyObjectByType<Player>();
-        //}
-
-        if (inventory == null && player != null)
+        InventoryManager nextInventory = ResolveInventoryFromPlayer(player);
+        if (ReferenceEquals(inventory, nextInventory))
         {
-            inventory = player.inventory;
+            Refresh();
+            return;
         }
+
+        if (inventory != null)
+        {
+            inventory.OnChanged -= Refresh;
+        }
+
+        inventory = nextInventory;
+
+        if (isActiveAndEnabled && inventory != null)
+        {
+            inventory.OnChanged -= Refresh;
+            inventory.OnChanged += Refresh;
+        }
+
+        Refresh();
     }
 }

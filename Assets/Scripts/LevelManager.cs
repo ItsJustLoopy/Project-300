@@ -12,6 +12,8 @@ public class LevelManager : MonoBehaviour
     [Header("Level Settings")]
     public int currentLevelIndex = 0;
     public float verticalSpacing = 5f;
+    [Tooltip("Pickup and Place unlock at this 1-based level number. Set to 1 to allow from the start.")]
+    [Min(1)] public int inventoryUnlockLevel = 1;
 
     [Header("Objects")]
     public GameObject groundTilePrefab;
@@ -24,6 +26,12 @@ public class LevelManager : MonoBehaviour
     public float inactiveLevelOpacity = 0.2f;
     public float fadeTransitionSpeed = 0.5f;
     public float arrowYOffset = 0.02f;
+
+    [Header("Game Background")]
+    [SerializeField, Range(0.1f, 5f)] private float gameShaderSpeed = 0.8f;
+    [SerializeField, Range(0.1f, 2f)] private float gameShaderIntensity = 0.5f;
+    [SerializeField] private Color gameShaderTintA = new Color(0.20f, 0.35f, 0.55f, 1f);
+    [SerializeField] private Color gameShaderTintB = new Color(0.85f, 0.45f, 0.95f, 1f);
 
     public LevelData _currentLevelData;
     public GameObject _playerInstance;
@@ -49,7 +57,12 @@ public class LevelManager : MonoBehaviour
         undo = new UndoManager(this);
         elevators = new ElevatorManager(this);
 
-        BackgroundGenerator.CreateAnimatedBackground(mainCamera.GetComponent<Camera>());
+        BackgroundGenerator.CreateAnimatedBackground(
+            mainCamera.GetComponent<Camera>(),
+            gameShaderSpeed,
+            gameShaderIntensity,
+            gameShaderTintA,
+            gameShaderTintB);
 
         if (levelDatas == null || levelDatas.Length == 0 || groundTilePrefab == null)
         {
@@ -71,6 +84,7 @@ public class LevelManager : MonoBehaviour
         _currentLevelData = levelDatas[currentLevelIndex];
 
         SpawnPlayer();
+        Debug.Log("meow 2");
       
 
         UpdateLevelOpacities();
@@ -162,6 +176,67 @@ public class LevelManager : MonoBehaviour
         }
     }
 
+    public void ResetCurrentLevel()
+    {
+        int levelIndex = currentLevelIndex;
+
+        if (levelIndex < 0 || levelIndex >= levelDatas.Length)
+        {
+            return;
+        }
+
+        _currentLevelData = UnityEngine.Object.Instantiate(levelDatas[levelIndex]);
+
+        bool preserveReturnElevator = levelIndex > 0;
+        var returnElevatorPosition = Vector2Int.zero;
+        bool hasReturnElevatorPosition = preserveReturnElevator && elevators.TryGetElevatorPositionOnLevel(levelIndex, out returnElevatorPosition);
+
+        if (!preserveReturnElevator)
+        {
+            elevators.ClearElevatorsForLevel(levelIndex);
+        }
+
+        loader.ResetLevelToInitialState(levelIndex, preserveInHoleBlocks: preserveReturnElevator);
+        loader.SetAuxiliaryLoadedLevel(null);
+        loader.ManageLoadedLevels(loadMissingLevels: false);
+        loader.UpdateGroundTilesForCurrentLevel();
+
+        Vector2Int spawn = hasReturnElevatorPosition ? returnElevatorPosition : _currentLevelData.playerSpawn;
+        float spawnY = levelIndex * verticalSpacing + 1f;
+
+        if (_playerScript != null)
+        {
+            _playerScript.gridPosition = spawn;
+            _playerScript.facingDirection = Vector2Int.up;
+
+            if (_playerScript.inventory != null)
+            {
+                _playerScript.inventory.Clear();
+            }
+        }
+
+        if (_playerInstance != null)
+        {
+            _playerInstance.transform.position = new Vector3(spawn.x, spawnY, spawn.y);
+            _playerInstance.transform.rotation = Quaternion.identity;
+        }
+
+        undo.ClearHistoryForLevel(levelIndex);
+
+        visuals.UpdateLevelOpacities();
+        visuals.SetLevelOpacity(levelIndex, 1f);
+        if (loader.TryGetLevelObjects(levelIndex, out var levelObjects))
+        {
+            levelObjects.currentOpacity = 1f;
+            levelObjects.targetOpacity = 1f;
+        }
+
+        if (SaveManager.Instance != null)
+        {
+            SaveManager.Instance.RequestSave();
+        }
+    }
+
     public void RemoveBlock(Block block)
     {
         loader.RemoveBlock(block);
@@ -175,6 +250,12 @@ public class LevelManager : MonoBehaviour
     public void PlaceExistingBlock(Vector2Int position, Block block)
     {
         loader.PlaceExistingBlock(position, block);
+    }
+
+    public bool IsInventoryUnlocked()
+    {
+        int currentLevelNumber = currentLevelIndex + 1;
+        return currentLevelNumber >= inventoryUnlockLevel;
     }
 
 }

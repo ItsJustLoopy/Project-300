@@ -14,6 +14,10 @@ public class PlayerInputRouter : MonoBehaviour
     private PlayerInput _playerInput;
     private InputAction _moveAction;
     private InputAction _elevatorAction;
+    private InputAction _pickupAction;
+    private InputAction _placeAction;
+    private InputAction _undoAction;
+    private InputAction _resetAction;
 
     private void Awake()
     {
@@ -28,6 +32,10 @@ public class PlayerInputRouter : MonoBehaviour
         {
             _moveAction = _playerInput.actions["Move"];
             _elevatorAction = _playerInput.actions["Elevator"];
+            _pickupAction = _playerInput.actions["Pickup"];
+            _placeAction = _playerInput.actions["Place"];
+            _undoAction = _playerInput.actions["Undo"];
+            _resetAction = _playerInput.actions["Reset"];
         }
     }
 
@@ -53,18 +61,23 @@ public class PlayerInputRouter : MonoBehaviour
             }
         }
 
-        // TODO: move to inputAction system
-        if (Input.GetKeyDown(KeyCode.U))
+        if (_undoAction != null && _undoAction.triggered)
         {
             LevelManager.Instance.UndoLastMove();
         }
 
-        if (Input.GetKeyDown(KeyCode.E))
+        if (!_player.isMoving && _resetAction != null && _resetAction.triggered)
+        {
+            LevelManager.Instance.ResetCurrentLevel();
+            return;
+        }
+
+        if (_pickupAction != null && _pickupAction.triggered && LevelManager.Instance != null && LevelManager.Instance.IsInventoryUnlocked())
         {
             inventory?.TryPickup();
         }
 
-        if (Input.GetKeyDown(KeyCode.F))
+        if (_placeAction != null && _placeAction.triggered && LevelManager.Instance != null && LevelManager.Instance.IsInventoryUnlocked())
         {
             inventory?.TryPlace();
         }
