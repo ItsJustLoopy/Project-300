@@ -249,6 +249,43 @@ public class ElevatorManager
             TutorialUI.Instance?.Show( $"Tip: Press {elevatorKey} again on this same elevator tile to go back down to the previous floor." );
 
             SaveManager.Instance?.RequestSave();
+        } //sean edit 02/03/26
+
+
+        bool isInventoryUnlockedNow = _levelManager.IsInventoryUnlocked(); //sean edit 02/03/26
+        if (!_levelManager.shownInventoryTip && isInventoryUnlockedNow && !wasInventoryUnlocked)
+        {
+            _levelManager.shownInventoryTip = true;
+
+            string pickupKey = "Pickup";
+            string placeKey = "Place";
+
+            if (_levelManager._playerInstance != null)
+            {
+                var input = _levelManager._playerInstance.GetComponent<UnityEngine.InputSystem.PlayerInput>();
+                if (input != null)
+                {
+                    var pickup = input.actions["Pickup"];
+                    var place = input.actions["Place"];
+
+                    if (pickup != null)
+                    {
+                        pickupKey = pickup.GetBindingDisplayString();
+                    }
+                    if (place != null)
+                    {
+                        placeKey = place.GetBindingDisplayString();
+                    }
+                }
+            }
+
+            TutorialUI.Instance?.Show(
+                                      $"Blocks unlocked!\n" +
+                                      $"- Face a block and press {pickupKey} to pick it up.\n" +
+                                      $"- With a block held, face an empty tile and press {placeKey} to place it."
+                                     );
+
+            SaveManager.Instance?.RequestSave(); //IMPORTANT, game cannot start with the inventory system enabled and still get this popup message
         }
     }
 
