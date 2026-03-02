@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class ElevatorManager
 {
@@ -96,6 +97,9 @@ public class ElevatorManager
 
     public IEnumerator UseElevator(Vector2Int elevatorPosition)
     {
+        bool wasInventoryUnlocked = _levelManager.IsInventoryUnlocked(); //sean edit 02/03/26
+
+
         Block elevator = GetElevatorAt(elevatorPosition);
         if (elevator == null)
         {
@@ -219,6 +223,32 @@ public class ElevatorManager
         if (SaveManager.Instance != null)
         {
             SaveManager.Instance.RequestSave();
+        }
+
+        //Tutorial: elevator return tip - one time only
+        if (!_levelManager.shownElevatorReturnTip)
+        {
+            {
+                _levelManager.shownElevatorReturnTip = true;
+            }
+
+            string elevatorKey = "your Elevator key";
+            if (_levelManager._playerInstance != null)
+            {
+                var input = _levelManager._playerInstance.GetComponent<UnityEngine.InputSystem.PlayerInput>();
+                if (input != null)
+                {
+                    var action = input.actions["Elevator"];
+                    if (action != null)
+                    {
+                        elevatorKey = action.GetBindingDisplayString();
+                    }
+                }
+            }
+
+            TutorialUI.Instance?.Show( $"Tip: Press {elevatorKey} again on this same elevator tile to go back down to the previous floor." );
+
+            SaveManager.Instance?.RequestSave();
         }
     }
 

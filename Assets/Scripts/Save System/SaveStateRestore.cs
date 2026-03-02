@@ -7,6 +7,11 @@ public class SaveStateRestore
     {
         ClearCurrentGameState(levelManager);
 
+
+        levelManager.shownElevatorReturnTip = saveData.shownElevatorReturnTip; //sean edit 02/03/26
+        levelManager.shownInventoryTip = saveData.shownInventoryTip; //sean edit 02/03/26
+
+
         levelManager.currentLevelIndex = saveData.currentLevelIndex;
         levelManager._currentLevelData = levelManager.levelDatas[saveData.currentLevelIndex];
 
