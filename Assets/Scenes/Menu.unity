@@ -4698,7 +4698,7 @@ MonoBehaviour:
   menuShaderSpeed: 2
   menuShaderIntensity: 0.5
   menuShaderScale: 200
-  menuBackgroundDistance: 20
+  menuBackgroundDistance: 4.8
   menuBackgroundFill: 1
   StartingScreen: Title Screen
   Screens:

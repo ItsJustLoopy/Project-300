@@ -1,11 +1,18 @@
 using System;
-using System.Collections;
 using UnityEngine;
 
 public class GridMover
 {
-    private MonoBehaviour _coroutineRunner;
-    private Transform _transform;
+    private readonly Transform _transform;
+
+    private bool _hasActiveMove;
+    private Vector3 _moveStartPosition;
+    private Vector3 _moveTargetPosition;
+    private float _moveDuration;
+    private float _moveElapsed;
+    private bool _applyGridPositionOnComplete;
+    private Vector2Int _moveTargetGridPosition;
+    private Action _customOnComplete;
     
     public bool isMoving { get; set; }
     public Vector2Int gridPosition { get; set; }
@@ -14,9 +21,8 @@ public class GridMover
     
     public event Action<Vector2Int> OnMoveComplete;
     
-    public GridMover(MonoBehaviour coroutineRunner, Transform transform)
+    public GridMover(Transform transform)
     {
-        _coroutineRunner = coroutineRunner;
         _transform = transform;
     }
     
@@ -28,52 +34,102 @@ public class GridMover
             {
                 LevelManager.Instance.RecordSnapshot();
             }
-            _coroutineRunner.StartCoroutine(MoveCoroutine(targetGridPos, yLevel));
+
+            Vector3 targetPosition = new Vector3(targetGridPos.x, yLevel, targetGridPos.y);
+            BeginMove(
+                _transform.position,
+                targetPosition,
+                moveDuration,
+                applyGridPositionOnComplete: true,
+                targetGridPos,
+                onComplete: null);
         }
     }
-    
-    private IEnumerator MoveCoroutine(Vector2Int targetGridPos, float yLevel)
+
+    public void Tick(float deltaTime)
     {
-        isMoving = true;
-        
-        Vector3 startPosition = _transform.position;
-        Vector3 targetPosition = new Vector3(targetGridPos.x, yLevel, targetGridPos.y);
-        float elapsed = 0f;
-        
-        while (elapsed < moveDuration)
+        if (!_hasActiveMove)
         {
-            elapsed += Time.deltaTime;
-            float t = elapsed / moveDuration;
-            _transform.position = Vector3.Lerp(startPosition, targetPosition, t);
-            yield return null;
+            return;
         }
-        
-        _transform.position = targetPosition;
-        gridPosition = targetGridPos;
+
+        _moveElapsed += deltaTime;
+
+        float t = _moveDuration <= 0f ? 1f : Mathf.Clamp01(_moveElapsed / _moveDuration);
+        _transform.position = Vector3.Lerp(_moveStartPosition, _moveTargetPosition, t);
+
+        if (t < 1f)
+        {
+            return;
+        }
+
+        _transform.position = _moveTargetPosition;
+
+        if (_applyGridPositionOnComplete)
+        {
+            gridPosition = _moveTargetGridPosition;
+        }
+
+        Action onComplete = _customOnComplete; 
+        bool invokeGridComplete = _applyGridPositionOnComplete;
+        Vector2Int completeGridPosition = _moveTargetGridPosition;
+
+        _hasActiveMove = false;
         isMoving = false;
-        
-        OnMoveComplete?.Invoke(targetGridPos);
+
+        _customOnComplete = null;
+        _applyGridPositionOnComplete = false;
+
+        onComplete?.Invoke();
+
+        if (invokeGridComplete)
+        {
+            OnMoveComplete?.Invoke(completeGridPosition);
+        }
     }
     
-    public IEnumerator MoveWithCustomAnimation(Vector3 startPos, Vector3 endPos, float duration, Action onComplete = null, bool recordSnapshot = true)
+    public bool MoveWithCustomAnimation(Vector3 startPos, Vector3 endPos, float duration, Action onComplete = null, bool recordSnapshot = true)
     {
-        isMoving = true;
+        if (isMoving)
+        {
+            return false;
+        }
+
         if (recordSnapshot && LevelManager.Instance != null)
         {
             LevelManager.Instance.RecordSnapshot();
         }
-        float elapsed = 0f;
-        
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            float t = elapsed / duration;
-            _transform.position = Vector3.Lerp(startPos, endPos, t);
-            yield return null;
-        }
-        
-        _transform.position = endPos;
-        isMoving = false;
-        onComplete?.Invoke();
+
+        BeginMove(
+            startPos,
+            endPos,
+            duration,
+            applyGridPositionOnComplete: false,
+            targetGridPos: gridPosition,
+            onComplete);
+
+        return true;
+    }
+
+    private void BeginMove(
+        Vector3 startPos,
+        Vector3 endPos,
+        float duration,
+        bool applyGridPositionOnComplete,
+        Vector2Int targetGridPos,
+        Action onComplete)
+    {
+        _moveStartPosition = startPos;
+        _moveTargetPosition = endPos;
+        _moveDuration = Mathf.Max(0f, duration);
+        _moveElapsed = 0f;
+        _applyGridPositionOnComplete = applyGridPositionOnComplete;
+        _moveTargetGridPosition = targetGridPos;
+        _customOnComplete = onComplete;
+
+        _transform.position = startPos;
+
+        _hasActiveMove = true;
+        isMoving = true;
     }
 }

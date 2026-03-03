@@ -50,7 +50,11 @@ public class PlayerInputRouter : MonoBehaviour
             return;
         }
 
-        if (!_player.isMoving && _moveAction != null && _moveAction.triggered)
+        if (!_player.isMoving &&
+            _moveAction != null &&
+            _moveAction.triggered &&
+            LevelManager.Instance != null &&
+            !LevelManager.Instance.HasMovingBlockOnCurrentLevel())
         {
             Vector2 input = _moveAction.ReadValue<Vector2>();
             Vector2Int direction = movement.ConvertInputToDirection(input);
@@ -61,12 +65,16 @@ public class PlayerInputRouter : MonoBehaviour
             }
         }
 
-        if (_undoAction != null && _undoAction.triggered)
+        if (_undoAction != null && _undoAction.triggered && LevelManager.Instance != null && LevelManager.Instance.CanUseUndoOrReset())
         {
             LevelManager.Instance.UndoLastMove();
         }
 
-        if (!_player.isMoving && _resetAction != null && _resetAction.triggered)
+        if (!_player.isMoving &&
+            _resetAction != null &&
+            _resetAction.triggered &&
+            LevelManager.Instance != null &&
+            LevelManager.Instance.CanUseUndoOrReset())
         {
             LevelManager.Instance.ResetCurrentLevel();
             return;

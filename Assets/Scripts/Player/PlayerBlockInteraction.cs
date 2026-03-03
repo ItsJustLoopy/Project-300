@@ -121,11 +121,10 @@ public class PlayerBlockInteraction : MonoBehaviour
         while (movingBlock != null && movingBlock.isMoving)
             yield return null;
 
-        yield return new WaitForSeconds(0.1f);
-
         GroundTile tile = LevelManager.Instance.GetTileAt(position);
-        if (tile != null)
-            tile.ClearOccupant();
+
+        if (tile != null && movingBlock != null)
+            tile.SetOccupant(movingBlock);
 
         if (targetBlock != null)
         {
@@ -134,9 +133,6 @@ public class PlayerBlockInteraction : MonoBehaviour
 
         if (movingBlock != null)
             movingBlock.CombineWith(targetBlock);
-
-        if (tile != null && movingBlock != null)
-            tile.SetOccupant(movingBlock);
 
         ApplyArrowAtPosition(movingBlock, position, pushDirection);
 
