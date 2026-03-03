@@ -1,12 +1,23 @@
 --New Session-- 
-[04:47:12] [Log] Generating level 0
-[04:47:12] [Log] Game loaded successfully from: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
-[04:47:12] [Log] Game loaded from save file
-[04:47:12] [Log] Background music started
-[04:47:15] [Log] Registered elevator at (1, 5) on level 0
-[04:47:15] [Log] Block placed in hole, it now acts as an elevator.
-[04:47:16] [Log] Generating level 1
-[04:47:29] [Log] Registered elevator at (6, 6) on level 1
-[04:47:29] [Log] Block placed in hole, it now acts as an elevator.
-[04:47:30] [Log] Generating level 2
-[04:47:31] [Log] Unloading level 0
+[21:30:42] [Log] Generating level 4
+[21:30:42] [Log] Generating level 3
+[21:30:42] [Log] Generating level 1
+[21:30:42] [Log] Generating level 2
+[21:30:42] [Log] Game loaded successfully from: /home/loopy/.config/unity3d/DefaultCompany/Project 300/gamesave.json
+[21:30:42] [Log] Game loaded from save file
+[21:30:42] [Log] Background music started
+[21:31:09] [Log] Registered elevator at (1, 7) on level 4
+[21:31:09] [Log] Block placed in hole, it now acts as an elevator.
+[21:31:10] [Log] Generating level 5
+[21:31:12] [Log] Unloading level 3
+[21:31:12] [Log] Unloading level 1
+[21:31:12] [Log] Unloading level 2
+[21:31:27] [Log] Registered elevator at (8, 8) on level 5
+[21:31:27] [Log] Block placed in hole, it now acts as an elevator.
+[21:31:27] [Log] Generating level 6
+[21:31:29] [Log] Unloading level 4
+[21:31:52] [Log] Registered elevator at (7, 4) on level 6
+[21:31:52] [Log] Block placed in hole, it now acts as an elevator.
+[21:31:53] [Log] Generating level 7
+[21:31:54] [Log] Unloading level 5
+[21:32:12] [Log] Block placed in hole, it now acts as an elevator.

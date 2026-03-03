@@ -9,6 +9,7 @@ public class ElevatorManager
     private int _highestVisitedLevel = -1;
 
     public IReadOnlyDictionary<Vector2Int, Block> ElevatorBlocks => _elevatorBlocks;
+    public int HighestVisitedLevel => _highestVisitedLevel < 0 ? _levelManager.currentLevelIndex : _highestVisitedLevel;
 
     public ElevatorManager(LevelManager levelManager)
     {

@@ -44,7 +44,7 @@ public class Block : MonoBehaviour
 
     private void Awake()
     {
-        _gridMover = new GridMover(this, transform);
+        _gridMover = new GridMover(transform);
     }
 
     private void EnsureRuntimeDataExists()
@@ -53,6 +53,11 @@ public class Block : MonoBehaviour
         {
             runtimeData = Instantiate(data);
         }
+    }
+
+    private void Update()
+    {
+        _gridMover?.Tick(Time.deltaTime);
     }
 
     public void Start()
@@ -155,30 +160,42 @@ public class Block : MonoBehaviour
         {
             return;
         }
-        StartCoroutine(MoveToHole(targetPos));
+        MoveToHole(targetPos);
     }
 
-    private IEnumerator MoveToHole(Vector2Int targetPos)
+    private void MoveToHole(Vector2Int targetPos)
     {
         Vector3 startPosition = transform.position;
         float myLevelY = levelIndex * LevelManager.Instance.verticalSpacing;
         Vector3 holePosition = new Vector3(targetPos.x, myLevelY + 1f, targetPos.y);
 
-        yield return StartCoroutine(_gridMover.MoveWithCustomAnimation(startPosition, holePosition, 0.1f, recordSnapshot: false));
-
-        _gridMover.gridPosition = targetPos;
-        yield return StartCoroutine(PlaceDownInHole());
-
-        _isInHole = true;
-        ApplyRuntimeData();
+        _gridMover.MoveWithCustomAnimation(
+            startPosition,
+            holePosition,
+            0.1f,
+            onComplete: () =>
+            {
+                _gridMover.gridPosition = targetPos;
+                PlaceDownInHole();
+            },
+            recordSnapshot: false);
     }
 
-    private IEnumerator PlaceDownInHole()
+    private void PlaceDownInHole()
     {
         Vector3 startPosition = transform.position;
         Vector3 targetPosition = new Vector3(startPosition.x, startPosition.y - 1, startPosition.z);
 
-        yield return StartCoroutine(_gridMover.MoveWithCustomAnimation(startPosition, targetPosition, 0.1f, recordSnapshot: false));
+        _gridMover.MoveWithCustomAnimation(
+            startPosition,
+            targetPosition,
+            0.1f,
+            onComplete: () =>
+            {
+                _isInHole = true;
+                ApplyRuntimeData();
+            },
+            recordSnapshot: false);
     }
 
     public void SetInHole(bool inHole)
