@@ -5,10 +5,10 @@ using UnityEngine;
 public class ElevatorManager
 {
     private readonly LevelManager _levelManager;
-    private readonly Dictionary<Vector2Int, Block> _elevatorBlocks = new Dictionary<Vector2Int, Block>();
+    private readonly HashSet<Block> _elevatorBlocks = new HashSet<Block>();
     private int _highestVisitedLevel = -1;
 
-    public IReadOnlyDictionary<Vector2Int, Block> ElevatorBlocks => _elevatorBlocks;
+    public IReadOnlyCollection<Block> ElevatorBlocks => _elevatorBlocks;
     public int HighestVisitedLevel => _highestVisitedLevel < 0 ? _levelManager.currentLevelIndex : _highestVisitedLevel;
 
     public ElevatorManager(LevelManager levelManager)
@@ -23,70 +23,104 @@ public class ElevatorManager
 
     public void ClearElevatorsForLevel(int levelIndex)
     {
-        var positionsToRemove = new List<Vector2Int>();
+        PruneNullElevators();
+        var blocksToRemove = new List<Block>();
 
-        foreach (var kvp in _elevatorBlocks)
+        foreach (Block block in _elevatorBlocks)
         {
-            Block block = kvp.Value;
-            if (block == null || block.levelIndex == levelIndex || block.originLevelIndex == levelIndex)
+            if (block.levelIndex == levelIndex || block.originLevelIndex == levelIndex)
             {
-                positionsToRemove.Add(kvp.Key);
+                blocksToRemove.Add(block);
             }
         }
 
-        foreach (var position in positionsToRemove)
+        foreach (Block block in blocksToRemove)
         {
-            _elevatorBlocks.Remove(position);
+            _elevatorBlocks.Remove(block);
         }
     }
 
     public void SetElevatorAt(Vector2Int position, Block block)
     {
-        if (block != null)
+        if (block == null)
         {
-            _elevatorBlocks[position] = block;
+            return;
         }
+
+        block.gridPosition = position;
+        _elevatorBlocks.Add(block);
     }
 
     public void RegisterElevator(Vector2Int position, Block block)
     {
-        if (!_elevatorBlocks.ContainsKey(position))
+        if (block == null)
         {
-            _elevatorBlocks[position] = block;
-            block.levelIndex = _levelManager.currentLevelIndex;
-            block.originLevelIndex = _levelManager.currentLevelIndex;
-            block.isAtOriginLevel = true;
-            Debug.Log($"Registered elevator at {position} on level {_levelManager.currentLevelIndex}");
+            return;
         }
+
+        PruneNullElevators();
+        foreach (Block registered in _elevatorBlocks)
+        {
+            if (registered == null)
+            {
+                continue;
+            }
+
+            if (registered.levelIndex == _levelManager.currentLevelIndex &&
+                registered.gridPosition == position &&
+                registered._isInHole)
+            {
+                return;
+            }
+        }
+
+        _elevatorBlocks.Add(block);
+        block.levelIndex = _levelManager.currentLevelIndex;
+        block.originLevelIndex = _levelManager.currentLevelIndex;
+        block.isAtOriginLevel = true;
+        Debug.Log($"Registered elevator at {position} on level {_levelManager.currentLevelIndex}");
+    }
+
+    public bool IsRegisteredAsElevator(Block block)
+    {
+        if (block == null)
+        {
+            return false;
+        }
+
+        PruneNullElevators();
+        return _elevatorBlocks.Contains(block);
     }
 
     public bool IsElevatorAt(Vector2Int position)
     {
-        if (_elevatorBlocks.TryGetValue(position, out var block))
-        {
-            return block != null && block._isInHole && block.levelIndex == _levelManager.currentLevelIndex;
-        }
-        return false;
+        return GetElevatorAt(position) != null;
     }
 
     public Block GetElevatorAt(Vector2Int position)
     {
-        if (_elevatorBlocks.TryGetValue(position, out var block))
+        PruneNullElevators();
+        foreach (Block block in _elevatorBlocks)
         {
-            if (block != null && block._isInHole && block.levelIndex == _levelManager.currentLevelIndex)
+            if (block != null &&
+                block._isInHole &&
+                block.levelIndex == _levelManager.currentLevelIndex &&
+                block.gridPosition == position)
+            {
                 return block;
+            }
         }
         return null;
     }
 
     public bool TryGetElevatorPositionOnLevel(int levelIndex, out Vector2Int elevatorPosition)
     {
-        foreach (var kvp in _elevatorBlocks)
+        PruneNullElevators();
+        foreach (Block block in _elevatorBlocks)
         {
-            Block block = kvp.Value;
             if (block != null && block._isInHole && block.levelIndex == levelIndex)
             {
-                elevatorPosition = kvp.Key;
+                elevatorPosition = block.gridPosition;
                 return true;
             }
         }
@@ -231,6 +265,23 @@ public class ElevatorManager
         {
             levelObjects.currentOpacity = opacity;
             levelObjects.targetOpacity = opacity;
+        }
+    }
+
+    private void PruneNullElevators()
+    {
+        var nullBlocks = new List<Block>();
+        foreach (Block block in _elevatorBlocks)
+        {
+            if (block == null)
+            {
+                nullBlocks.Add(block);
+            }
+        }
+
+        foreach (Block nullBlock in nullBlocks)
+        {
+            _elevatorBlocks.Remove(nullBlock);
         }
     }
 }

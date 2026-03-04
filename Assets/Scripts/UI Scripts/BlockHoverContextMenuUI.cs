@@ -5,12 +5,15 @@ using UnityEngine.UI;
 
 public class BlockHoverContextMenuUI : MonoBehaviour
 {
+    [Header("Debug")]
+    [SerializeField] private bool enableDebugMode = false;
+
     [Header("Wiring")]
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Transform contentRoot;
     [SerializeField] private GameObject rowPrefab;
 
-    // Track current so we don’t rebuild UI every frame for same block
+    // Track current so we donï¿½t rebuild UI every frame for same block
     private Block _currentBlock;
 
     private readonly List<GameObject> _spawnedRows = new List<GameObject>();
@@ -24,6 +27,12 @@ public class BlockHoverContextMenuUI : MonoBehaviour
 
     public void ShowFor(Block block)
     {
+        if (!enableDebugMode)
+        {
+            Hide();
+            return;
+        }
+
         if (block == null)
         {
             Hide();
@@ -58,7 +67,7 @@ public class BlockHoverContextMenuUI : MonoBehaviour
         {
             canvasGroup.alpha = 1f;
             canvasGroup.interactable = false;   // UI is display-only
-            canvasGroup.blocksRaycasts = false; // don’t block mouse raycasts
+            canvasGroup.blocksRaycasts = false; // donï¿½t block mouse raycasts
         }
     }
 
@@ -79,7 +88,7 @@ public class BlockHoverContextMenuUI : MonoBehaviour
 
         var primaries = block.containedPrimaryColors;
 
-        // If empty (e.g., immovable or white), show one row saying “None”
+        // If empty (e.g., immovable or white), show one row saying ï¿½Noneï¿½
         if (primaries == null || primaries.Count == 0)
         {
             SpawnRow("None", Color.gray);

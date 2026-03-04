@@ -94,8 +94,6 @@ public class Block : MonoBehaviour
             }
         }
 
-        originLevelIndex = levelIndex;
-
         // initialize contained colors from runtimeData
         var sourceColors = (runtimeData != null && runtimeData.containedColors != null && runtimeData.containedColors.Count > 0)
             ? runtimeData.containedColors
