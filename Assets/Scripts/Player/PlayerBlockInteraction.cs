@@ -30,8 +30,9 @@ public class PlayerBlockInteraction : MonoBehaviour
         Vector2Int blockTargetPosition = newPosition + direction;
         bool targetIsHole = blockTargetPosition == LevelManager.Instance.GetCurrentLevelData().holePosition;
         bool targetOutOfBounds = LevelManager.Instance.CheckOutOfBounds(blockTargetPosition);
+        bool holeAlreadyHasElevator = targetIsHole && LevelManager.Instance.IsElevatorAt(blockTargetPosition);
 
-        if (targetIsHole && block.canBePlacedInHole)
+        if (targetIsHole && block.canBePlacedInHole && !holeAlreadyHasElevator)
         {
             PushBlockIntoHole(block, holePos: blockTargetPosition, currentPos: newPosition);
             return true;

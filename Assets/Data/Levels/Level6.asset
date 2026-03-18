@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!114 &-6026880359879592928
+--- !u!114 &-8619771329559521707
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -10,15 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
-  m_Name: Wall_9_8
+  m_Name: Wall_6_7
   m_EditorClassIdentifier: Assembly-CSharp::BlockData
   blockName: Immovable Block
   isImmovable: 1
   blockPrefab: {fileID: 0}
-  BlockPosition: {x: 9, y: 1, z: 8}
+  BlockPosition: {x: 6, y: 1, z: 7}
   blockColor: 0
   containedColors: 
---- !u!114 &-3608586863196531775
+--- !u!114 &-4286254212875655872
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -28,14 +28,68 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
-  m_Name: Block_5_6_Red
+  m_Name: Wall_9_3
   m_EditorClassIdentifier: Assembly-CSharp::BlockData
-  blockName: Red Block
-  isImmovable: 0
+  blockName: Immovable Block
+  isImmovable: 1
   blockPrefab: {fileID: 0}
-  BlockPosition: {x: 5, y: 1, z: 6}
-  blockColor: 1
-  containedColors: 01000000
+  BlockPosition: {x: 9, y: 1, z: 3}
+  blockColor: 0
+  containedColors: 
+--- !u!114 &-3737660599551448497
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
+  m_Name: Wall_6_4
+  m_EditorClassIdentifier: Assembly-CSharp::BlockData
+  blockName: Immovable Block
+  isImmovable: 1
+  blockPrefab: {fileID: 0}
+  BlockPosition: {x: 6, y: 1, z: 4}
+  blockColor: 0
+  containedColors: 
+--- !u!114 &-787354298362499666
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
+  m_Name: Wall_7_7
+  m_EditorClassIdentifier: Assembly-CSharp::BlockData
+  blockName: Immovable Block
+  isImmovable: 1
+  blockPrefab: {fileID: 0}
+  BlockPosition: {x: 7, y: 1, z: 7}
+  blockColor: 0
+  containedColors: 
+--- !u!114 &-542468119296551003
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
+  m_Name: Wall_8_4
+  m_EditorClassIdentifier: Assembly-CSharp::BlockData
+  blockName: Immovable Block
+  isImmovable: 1
+  blockPrefab: {fileID: 0}
+  BlockPosition: {x: 8, y: 1, z: 4}
+  blockColor: 0
+  containedColors: 
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -51,26 +105,38 @@ MonoBehaviour:
   levelWidth: 10
   levelHeight: 10
   playerSpawn: {x: 0, y: 0}
-  holePosition: {x: 8, y: 8}
+  holePosition: {x: 8, y: 1}
   blocks:
-  - {fileID: 7252809702944879016}
-  - {fileID: -3608586863196531775}
-  - {fileID: 2522371453020843978}
-  - {fileID: -6026880359879592928}
+  - {fileID: 6840907676144629492}
+  - {fileID: -542468119296551003}
+  - {fileID: -3737660599551448497}
+  - {fileID: 7832593221892391450}
+  - {fileID: -4286254212875655872}
+  - {fileID: -787354298362499666}
+  - {fileID: -8619771329559521707}
+  - {fileID: 8066098846644971683}
+  - {fileID: 3456868280927654291}
+  - {fileID: 2054236923416954617}
   arrows:
-  - position: {x: 9, y: 5}
-    direction: 0
-    color: 3
-  - position: {x: 5, y: 9}
-    direction: 1
-    color: 2
-  - position: {x: 7, y: 8}
-    direction: 3
-    color: 2
-  - position: {x: 8, y: 7}
+  - position: {x: 7, y: 2}
     direction: 2
     color: 3
---- !u!114 &2522371453020843978
+  - position: {x: 7, y: 1}
+    direction: 0
+    color: 3
+  - position: {x: 7, y: 3}
+    direction: 2
+    color: 1
+  - position: {x: 6, y: 3}
+    direction: 1
+    color: 1
+  - position: {x: 8, y: 3}
+    direction: 3
+    color: 1
+  - position: {x: 7, y: 4}
+    direction: 0
+    color: 2
+--- !u!114 &2054236923416954617
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -80,15 +146,33 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
-  m_Name: Wall_8_9
+  m_Name: Block_7_5_Yellow
+  m_EditorClassIdentifier: Assembly-CSharp::BlockData
+  blockName: Yellow Block
+  isImmovable: 0
+  blockPrefab: {fileID: 0}
+  BlockPosition: {x: 7, y: 1, z: 5}
+  blockColor: 2
+  containedColors: 02000000
+--- !u!114 &3456868280927654291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
+  m_Name: Wall_6_5
   m_EditorClassIdentifier: Assembly-CSharp::BlockData
   blockName: Immovable Block
   isImmovable: 1
   blockPrefab: {fileID: 0}
-  BlockPosition: {x: 8, y: 1, z: 9}
+  BlockPosition: {x: 6, y: 1, z: 5}
   blockColor: 0
   containedColors: 
---- !u!114 &7252809702944879016
+--- !u!114 &6840907676144629492
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -98,11 +182,47 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
-  m_Name: Wall_9_9
+  m_Name: Wall_9_2
   m_EditorClassIdentifier: Assembly-CSharp::BlockData
   blockName: Immovable Block
   isImmovable: 1
   blockPrefab: {fileID: 0}
-  BlockPosition: {x: 9, y: 1, z: 9}
+  BlockPosition: {x: 9, y: 1, z: 2}
+  blockColor: 0
+  containedColors: 
+--- !u!114 &7832593221892391450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
+  m_Name: Wall_9_4
+  m_EditorClassIdentifier: Assembly-CSharp::BlockData
+  blockName: Immovable Block
+  isImmovable: 1
+  blockPrefab: {fileID: 0}
+  BlockPosition: {x: 9, y: 1, z: 4}
+  blockColor: 0
+  containedColors: 
+--- !u!114 &8066098846644971683
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b36043b3563881905be59e2b52931086, type: 3}
+  m_Name: Wall_6_6
+  m_EditorClassIdentifier: Assembly-CSharp::BlockData
+  blockName: Immovable Block
+  isImmovable: 1
+  blockPrefab: {fileID: 0}
+  BlockPosition: {x: 6, y: 1, z: 6}
   blockColor: 0
   containedColors: 

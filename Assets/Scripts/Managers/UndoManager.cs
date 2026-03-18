@@ -105,7 +105,7 @@ public class UndoManager
                 isInHole = block._isInHole,
                 isAtOriginLevel = block.isAtOriginLevel,
                 originLevelIndex = block.originLevelIndex,
-                wasRegisteredAsElevator = (_levelManager.elevators.ElevatorBlocks.TryGetValue(block.gridPosition, out var b) && b == block),
+                wasRegisteredAsElevator = _levelManager.elevators.IsRegisteredAsElevator(block),
                 runtimeDataPosition = block.runtimeData != null ? block.runtimeData.BlockPosition : block.transform.position
             };
             record.blockSnapshots.Add(snap);

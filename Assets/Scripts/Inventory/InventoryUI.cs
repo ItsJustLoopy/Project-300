@@ -3,17 +3,26 @@ using UnityEngine.UI;
 
 public class InventoryUI : MonoBehaviour
 {
+    private static readonly int CubeColorId = Shader.PropertyToID("_CubeColor");
+    private static readonly int CubeScaleId = Shader.PropertyToID("_CubeScale");
+
     [Header("References")]
     public Player player;
     [SerializeField] private InventoryManager inventory;
     [SerializeField] private GameObject blockIconObject;
     [SerializeField] private Image blockIcon;
+    [Header("Cube Icon Shader")]
+    [SerializeField] private Shader blockCubeShader;
+    [SerializeField, Range(0.4f, 1.6f)] private float cubeScale = 0.95f;
+
+    private Material blockIconMaterialInstance;
     public static InventoryUI Instance;
 
     private void Awake()
     {
         Instance = this;
         ResolveBlockIcon();
+        EnsureCubeMaterial();
 
         ResolvePlayerAndInventory();
 
@@ -32,6 +41,8 @@ public class InventoryUI : MonoBehaviour
 
     private void OnEnable()
     {
+        ResolveBlockIcon();
+        EnsureCubeMaterial();
         ResolvePlayerAndInventory();
 
         if (inventory != null)
@@ -51,9 +62,19 @@ public class InventoryUI : MonoBehaviour
         }
     }
 
+    private void OnDestroy()
+    {
+        if (blockIconMaterialInstance != null)
+        {
+            Destroy(blockIconMaterialInstance);
+            blockIconMaterialInstance = null;
+        }
+    }
+
     private void Refresh()
     {
         ResolveBlockIcon();
+        EnsureCubeMaterial();
 
         if (blockIcon == null)
         {
@@ -75,7 +96,17 @@ public class InventoryUI : MonoBehaviour
         }
 
         var c = inventory.TryGetHeldColor();
-        blockIcon.color = c;
+        if (blockIconMaterialInstance != null && blockIconMaterialInstance.HasProperty(CubeColorId))
+        {
+            blockIconMaterialInstance.SetColor(CubeColorId, c);
+        }
+
+        if (blockIconMaterialInstance != null && blockIconMaterialInstance.HasProperty(CubeScaleId))
+        {
+            blockIconMaterialInstance.SetFloat(CubeScaleId, cubeScale);
+        }
+
+        blockIcon.color = Color.white;
     }
 
     private void ResolveBlockIcon()
@@ -83,6 +114,44 @@ public class InventoryUI : MonoBehaviour
         if (blockIcon == null && blockIconObject != null)
         {
             blockIcon = blockIconObject.GetComponent<Image>();
+        }
+    }
+
+    private void EnsureCubeMaterial()
+    {
+        if (blockIcon == null)
+            return;
+
+        if (blockCubeShader == null)
+        {
+            blockCubeShader = Shader.Find("UI/InventorySpinningCube");
+        }
+
+        if (blockCubeShader == null)
+            return;
+
+        if (blockIconMaterialInstance != null && blockIconMaterialInstance.shader != blockCubeShader)
+        {
+            Destroy(blockIconMaterialInstance);
+            blockIconMaterialInstance = null;
+        }
+
+        if (blockIconMaterialInstance == null)
+        {
+            blockIconMaterialInstance = new Material(blockCubeShader)
+            {
+                name = "Inventory Cube Icon (Runtime)"
+            };
+        }
+
+        if (blockIcon.material != blockIconMaterialInstance)
+        {
+            blockIcon.material = blockIconMaterialInstance;
+        }
+
+        if (blockIconMaterialInstance.HasProperty(CubeScaleId))
+        {
+            blockIconMaterialInstance.SetFloat(CubeScaleId, cubeScale);
         }
     }
 
