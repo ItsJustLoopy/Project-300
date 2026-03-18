@@ -12,6 +12,30 @@ public class LevelLoader
         public float currentOpacity = 1f;
     }
 
+    public bool HasMovingBlockOnCurrentLevel()
+    {
+        if (!_loadedLevels.TryGetValue(_levelManager.currentLevelIndex, out var levelObjects) || levelObjects.blocks == null)
+        {
+            return false;
+        }
+
+        foreach (GameObject blockObj in levelObjects.blocks)
+        {
+            if (blockObj == null)
+            {
+                continue;
+            }
+
+            Block block = blockObj.GetComponent<Block>();
+            if (block != null && block.levelIndex == _levelManager.currentLevelIndex && block.isMoving)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private readonly LevelManager _levelManager;
     private GroundTile[,] _groundTiles;
     private readonly Dictionary<int, LevelObjects> _loadedLevels = new Dictionary<int, LevelObjects>();
@@ -85,6 +109,19 @@ public class LevelLoader
             }
         }
 
+        if (_levelManager.holeIndicatorPrefab != null)
+        {
+            Vector3 holeIndicatorPosition = new Vector3(
+                levelData.holePosition.x,
+                yOffset + _levelManager.arrowYOffset,
+                levelData.holePosition.y
+            );
+
+            GameObject holeIndicatorObj = Object.Instantiate(_levelManager.holeIndicatorPrefab, holeIndicatorPosition, Quaternion.identity);
+            holeIndicatorObj.transform.SetParent(tilesParent.transform);
+            levelObjects.tiles.Add(holeIndicatorObj);
+        }
+
         if (!skipBlocks)
         {
             GameObject blocksParent = new GameObject($"Level_{levelIndex + 1}_Blocks");
@@ -108,10 +145,24 @@ public class LevelLoader
                     blockComponent.runtimeData.BlockPosition = new Vector3(blockData.BlockPosition.x, blockPosition.y, blockData.BlockPosition.z);
                     blockComponent.levelIndex = levelIndex;
                     _levelManager.undo.EnsureBlockId(blockComponent);
+
+                    if (blockData.isImmovable)
+                    {
+                        GroundTile tile = FindTileInLevel(levelObjects, new Vector2Int(
+                            Mathf.RoundToInt(blockData.BlockPosition.x),
+                            Mathf.RoundToInt(blockData.BlockPosition.z)));
+
+                        if (tile != null)
+                        {
+                            tile.SetOccupant(blockComponent);
+                        }
+                    }
                 }
 
                 levelObjects.blocks.Add(blockObj);
             }
+
+            RemoveTileChildrenForWalls(levelObjects);
         }
 
         _loadedLevels[levelIndex] = levelObjects;
@@ -339,6 +390,66 @@ public class LevelLoader
                 }
             }
         }
+
+        RemoveTileChildrenForWalls(currentLevelObjects);
+    }
+
+    private static GroundTile FindTileInLevel(LevelObjects levelObjects, Vector2Int gridPosition)
+    {
+        if (levelObjects == null || levelObjects.tiles == null)
+        {
+            return null;
+        }
+
+        foreach (GameObject tileObj in levelObjects.tiles)
+        {
+            if (tileObj == null)
+            {
+                continue;
+            }
+
+            GroundTile tile = tileObj.GetComponent<GroundTile>();
+            if (tile != null && tile.gridPosition == gridPosition)
+            {
+                return tile;
+            }
+        }
+
+        return null;
+    }
+
+    private static void RemoveTileChildrenForWalls(LevelObjects levelObjects)
+    {
+        if (levelObjects == null || levelObjects.tiles == null)
+        {
+            return;
+        }
+
+        foreach (GameObject tileObj in levelObjects.tiles)
+        {
+            if (tileObj == null)
+            {
+                continue;
+            }
+
+            GroundTile tile = tileObj.GetComponent<GroundTile>();
+            if (tile == null || tile.occupant == null)
+            {
+                continue;
+            }
+
+            BlockData source = tile.occupant.runtimeData != null ? tile.occupant.runtimeData : tile.occupant.data;
+            bool isWall = source != null && source.isImmovable;
+            if (!isWall)
+            {
+                continue;
+            }
+
+            for (int i = tileObj.transform.childCount - 1; i >= 0; i--)
+            {
+                Object.Destroy(tileObj.transform.GetChild(i).gameObject);
+            }
+        }
     }
 
     public bool CanPlaceBlockAt(Vector2Int position)
@@ -421,6 +532,46 @@ public class LevelLoader
         }
 
         return _groundTiles[position.x, position.y];
+    }
+
+    public Block GetBlockingBlockAt(Vector2Int position)
+    {
+        if (CheckOutOfBounds(position))
+        {
+            return null;
+        }
+
+        GroundTile tile = _groundTiles[position.x, position.y];
+        if (tile != null && tile.isOccupied && tile.occupant != null)
+        {
+            return tile.occupant;
+        }
+
+        if (!_loadedLevels.TryGetValue(_levelManager.currentLevelIndex, out var levelObjects))
+        {
+            return null;
+        }
+
+        foreach (GameObject blockObj in levelObjects.blocks)
+        {
+            if (blockObj == null)
+            {
+                continue;
+            }
+
+            Block block = blockObj.GetComponent<Block>();
+            if (block == null)
+            {
+                continue;
+            }
+
+            if (block.levelIndex == _levelManager.currentLevelIndex && !block._isInHole && block.gridPosition == position)
+            {
+                return block;
+            }
+        }
+
+        return null;
     }
 
     public LevelData GetCurrentLevelData()

@@ -51,12 +51,12 @@ public class PlayerMovementController : MonoBehaviour
             return;
         }
 
-        GroundTile targetTile = LevelManager.Instance.GetTileAt(newPosition);
+        Block blockingBlock = LevelManager.Instance.GetBlockingBlockAt(newPosition);
 
-        if (targetTile != null && targetTile.isOccupied)
+        if (blockingBlock != null)
         {
             bool shouldMove = blockInteraction != null &&
-                              blockInteraction.TryHandleBlockInteraction(targetTile.occupant, direction, newPosition);
+                              blockInteraction.TryHandleBlockInteraction(blockingBlock, direction, newPosition);
 
             if (shouldMove)
             {

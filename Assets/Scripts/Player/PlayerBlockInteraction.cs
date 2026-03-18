@@ -30,8 +30,9 @@ public class PlayerBlockInteraction : MonoBehaviour
         Vector2Int blockTargetPosition = newPosition + direction;
         bool targetIsHole = blockTargetPosition == LevelManager.Instance.GetCurrentLevelData().holePosition;
         bool targetOutOfBounds = LevelManager.Instance.CheckOutOfBounds(blockTargetPosition);
+        bool holeAlreadyHasElevator = targetIsHole && LevelManager.Instance.IsElevatorAt(blockTargetPosition);
 
-        if (targetIsHole && block.canBePlacedInHole)
+        if (targetIsHole && block.canBePlacedInHole && !holeAlreadyHasElevator)
         {
             PushBlockIntoHole(block, holePos: blockTargetPosition, currentPos: newPosition);
             return true;
@@ -121,11 +122,10 @@ public class PlayerBlockInteraction : MonoBehaviour
         while (movingBlock != null && movingBlock.isMoving)
             yield return null;
 
-        yield return new WaitForSeconds(0.1f);
-
         GroundTile tile = LevelManager.Instance.GetTileAt(position);
-        if (tile != null)
-            tile.ClearOccupant();
+
+        if (tile != null && movingBlock != null)
+            tile.SetOccupant(movingBlock);
 
         if (targetBlock != null)
         {
@@ -134,9 +134,6 @@ public class PlayerBlockInteraction : MonoBehaviour
 
         if (movingBlock != null)
             movingBlock.CombineWith(targetBlock);
-
-        if (tile != null && movingBlock != null)
-            tile.SetOccupant(movingBlock);
 
         ApplyArrowAtPosition(movingBlock, position, pushDirection);
 

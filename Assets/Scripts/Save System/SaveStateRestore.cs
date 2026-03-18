@@ -140,6 +140,7 @@ public class SaveStateRestore
             {
                 Vector2Int pos = new Vector2Int(savedBlock.gridPosition.x, savedBlock.gridPosition.y);
                 levelManager.elevators.SetElevatorAt(pos, block);
+                levelManager.loader.SetTileVisible(savedBlock.levelIndex, pos, false);
             }
 
             block.ApplyRuntimeData();
@@ -182,16 +183,50 @@ public class SaveStateRestore
             if (!levelManager.loader.LoadedLevels.ContainsKey(elevatorData.currentLevelIndex))
                 levelManager.GenerateLevel(elevatorData.currentLevelIndex, skipBlocks: true);
 
-            Block[] allBlocks = Object.FindObjectsByType<Block>(FindObjectsSortMode.None);
-            foreach (Block block in allBlocks)
+            if (!levelManager.loader.TryGetLevelObjects(elevatorData.currentLevelIndex, out var levelObjects))
             {
+                continue;
+            }
+
+            bool matched = false;
+            foreach (GameObject blockObj in levelObjects.blocks)
+            {
+                if (blockObj == null)
+                {
+                    continue;
+                }
+
+                Block block = blockObj.GetComponent<Block>();
+                if (block == null)
+                {
+                    continue;
+                }
+
                 if (block.gridPosition == position && block._isInHole)
                 {
                     block.levelIndex = elevatorData.currentLevelIndex;
                     block.originLevelIndex = elevatorData.originLevelIndex;
                     block.isAtOriginLevel = elevatorData.isAtOriginLevel;
                     levelManager.elevators.SetElevatorAt(position, block);
+                    levelManager.loader.SetTileVisible(elevatorData.currentLevelIndex, position, false);
+                    matched = true;
                     break;
+                }
+            }
+
+            if (!matched)
+            {
+                Block[] allBlocks = Object.FindObjectsByType<Block>(FindObjectsSortMode.None);
+                foreach (Block block in allBlocks)
+                {
+                    if (block.gridPosition == position && block._isInHole && block.levelIndex == elevatorData.currentLevelIndex)
+                    {
+                        block.originLevelIndex = elevatorData.originLevelIndex;
+                        block.isAtOriginLevel = elevatorData.isAtOriginLevel;
+                        levelManager.elevators.SetElevatorAt(position, block);
+                        levelManager.loader.SetTileVisible(elevatorData.currentLevelIndex, position, false);
+                        break;
+                    }
                 }
             }
         }

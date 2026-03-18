@@ -90,12 +90,12 @@ public class SaveStateCapture
 
     private static void CaptureElevators(LevelManager levelManager, GameSaveData data)
     {
-        foreach (var kvp in levelManager.elevators.ElevatorBlocks)
+        foreach (Block elevatorBlock in levelManager.elevators.ElevatorBlocks)
         {
-            Vector2IntSerializable pos = kvp.Key;
-            Block elevatorBlock = kvp.Value;
             if (elevatorBlock == null)
                 continue;
+
+            Vector2IntSerializable pos = elevatorBlock.gridPosition;
 
             ElevatorSaveData elevatorData = new ElevatorSaveData
             {

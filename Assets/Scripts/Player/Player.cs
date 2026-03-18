@@ -17,7 +17,7 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        _gridMover = new GridMover(this, transform);
+        _gridMover = new GridMover(transform);
 
         if (inventory == null)
         {
@@ -33,5 +33,10 @@ public class Player : MonoBehaviour
         {
             _gridMover.gridPosition = LevelManager.Instance._currentLevelData.playerSpawn;
         }
+    }
+
+    private void Update()
+    {
+        _gridMover?.Tick(Time.deltaTime);
     }
 }
