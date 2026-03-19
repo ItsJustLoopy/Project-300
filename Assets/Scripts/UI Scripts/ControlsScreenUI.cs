@@ -19,8 +19,8 @@ public class ControlsScreenUI : MonoBehaviour
 
         var sb = new StringBuilder();
 
-        sb.AppendLine("Move: WASD / Arrow Keys");
-        sb.AppendLine($"Elevator: {GetBinding("Elevator")}");
+        sb.AppendLine("Move: D-Pad | WASD");
+        sb.AppendLine($"Elevator: A | Spacebar");
         sb.AppendLine($"Pick up block: {GetBinding("Pickup")} (face a block)");
         sb.AppendLine($"Place block: {GetBinding("Place")} (face an empty tile)");
         sb.AppendLine($"Undo: {GetBinding("Undo")}");
