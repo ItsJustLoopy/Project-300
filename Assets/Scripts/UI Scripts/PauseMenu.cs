@@ -5,7 +5,7 @@ public class PauseMenu : MonoBehaviour
 {
     public void OnEnable()
     {
-        GameManager.Instance.Pause();  
+        //GameManager.Instance.Pause();  
     }
 
     public void OnPause()
@@ -15,12 +15,15 @@ public class PauseMenu : MonoBehaviour
 
     public void OnDisable()
     {
-        GameManager.Instance.UnPause();
+        //GameManager.Instance.UnPause();
+        
+        //game manager literally does nothing since timescale isnt used for anything
+        // - sami
     }
 
     public void LoadMenu()
     {
-        SceneManager.LoadScene("Menu");
+        ScreenManager.Instance.ShowScreen("Main Menu Screen");
     }
 
     public void Quit()

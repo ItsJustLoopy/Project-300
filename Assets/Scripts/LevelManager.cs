@@ -23,6 +23,10 @@ public class LevelManager : MonoBehaviour
     public GameObject holeIndicatorPrefab;
     public GameObject mainCamera;
 
+    [Header("Tutorial Flags (Saved)")] //sean edit 02/03/26
+    public bool shownElevatorReturnTip; //sean edit 02/03/26
+    public bool shownInventoryTip; //sean edit 02/03/26
+
     [Header("Visuals")]
     public float inactiveLevelOpacity = 0.2f;
     public float fadeTransitionSpeed = 0.5f;

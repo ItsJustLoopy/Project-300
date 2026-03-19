@@ -46,6 +46,7 @@ public class ScreenManager : Singleton<ScreenManager>
 
     private string PreviousScreen; //new
     private string ActiveScreen;
+    private int LastScreenChangeFrame = -1;
 
     private void Start()
     {
@@ -75,6 +76,21 @@ public class ScreenManager : Singleton<ScreenManager>
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
+            if (Time.frameCount == LastScreenChangeFrame)
+                return;
+
+            if (ActiveScreen == "HUD")
+            {
+                ShowScreen("Pause Screen");
+                return;
+            }
+
+            if (ActiveScreen == "Pause Screen")
+            {
+                ShowScreen("HUD");
+                return;
+            }
+
             GoBackToPreviousScreen();
         }
     }
@@ -95,6 +111,19 @@ public class ScreenManager : Singleton<ScreenManager>
         }
         ActiveScreen = screenName;
         Screens[ActiveScreen].SetActive(true);
+        LastScreenChangeFrame = Time.frameCount;
+    }
+
+    public void HideScreen(string screenName)
+    {
+        if (!Screens.ContainsKey(screenName)) return;
+
+        Screens[screenName].SetActive(false);
+
+        if (ActiveScreen == screenName)
+        {
+            ActiveScreen = null;
+        }
     }
 
     public void GoBackToPreviousScreen()

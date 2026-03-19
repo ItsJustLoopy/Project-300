@@ -14,6 +14,9 @@ public class GameSaveData
 
     public InventorySaveData inventory;
 
+    public bool shownElevatorReturnTip; //sean edit 02/03/26
+    public bool shownInventoryTip; //sean edit 02/03/26
+
     public GameSaveData()
     {
         allBlocks = new List<BlockSaveData>();

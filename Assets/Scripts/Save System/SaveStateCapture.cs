@@ -10,6 +10,9 @@ public class SaveStateCapture
         data.currentLevelIndex = levelManager.currentLevelIndex;
         data.playerPosition = CapturePlayerPosition(levelManager);
 
+        data.shownElevatorReturnTip = levelManager.shownElevatorReturnTip; //sean edit 02/03/26
+        data.shownInventoryTip = levelManager.shownInventoryTip; //sean edit 02/03/26
+
         CaptureInventory(levelManager, data);
         CaptureBlocks(data);
         CaptureElevators(levelManager, data);
